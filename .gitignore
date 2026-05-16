@@ -1,0 +1,72 @@
+# ============================================================
+# BudgetWise — .gitignore
+# ============================================================
+
+
+# ── CRITICAL: Environment variables — NEVER commit ───────────
+.env
+.env.local
+.env.*.local
+
+
+# ── Node / Vite ──────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+
+# ── Vite cache ───────────────────────────────────────────────
+.vite/
+vite.config.js.timestamp*
+
+
+# ── OS files ─────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+
+# ── Editor files ─────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+# ── Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# ── Testing ──────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+
+# ── Misc ─────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+.cache/
+
+
+# ============================================================
+# FILES THAT ARE SAFE TO COMMIT (do NOT ignore these):
+# ✅ .env.example     — template with no real keys
+# ✅ schema.sql       — database setup script
+# ✅ vite.config.js   — build config
+# ✅ package.json     — dependencies
+# ✅ README.md        — documentation
+# ============================================================

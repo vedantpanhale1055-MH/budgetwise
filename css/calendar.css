@@ -1,0 +1,431 @@
+/* ============================================================
+   BudgetWise — Calendar View Styles
+   File 13 of 39 | Save as: css/calendar.css
+   ============================================================ */
+
+/* ── Calendar Layout ── */
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+/* ── Calendar Card ── */
+.calendar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ── Month Navigation ── */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calendar-month-label {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.calendar-nav-btns {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cal-nav-btn {
+  width: 32px; height: 32px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.cal-nav-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-10);
+}
+
+.cal-today-btn {
+  padding: 6px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.cal-today-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-10);
+}
+
+/* ── Day-of-Week Headers ── */
+.calendar-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-app);
+}
+
+.calendar-dow-cell {
+  padding: var(--space-2) var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Calendar Grid ── */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+}
+
+/* ── Day Cell ── */
+.cal-day {
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-2);
+  min-height: 90px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cal-day:nth-child(7n) { border-right: none; } /* last column */
+
+.cal-day:hover {
+  background: var(--bg-app);
+}
+
+/* Day number */
+.cal-day-num {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  width: 26px; height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Today */
+.cal-day.today .cal-day-num {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+}
+
+.cal-day.today {
+  border: 1.5px solid var(--color-primary);
+  z-index: 1;
+}
+
+/* Selected day */
+.cal-day.selected {
+  background: var(--color-primary-10);
+}
+
+/* Other month days */
+.cal-day.other-month {
+  background: var(--bg-app);
+}
+
+.cal-day.other-month .cal-day-num {
+  color: var(--text-tertiary);
+}
+
+/* Spending amount shown inside cell */
+.cal-day-amount {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+/* Low spend */
+.cal-day.spend-low  .cal-day-amount { color: #10B981; }
+.cal-day.spend-mid  .cal-day-amount { color: #F59E0B; }
+.cal-day.spend-high .cal-day-amount { color: #EF4444; }
+
+/* Expense dots */
+.cal-day-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: auto;
+}
+
+.cal-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Heat map tint (background intensity by spend) */
+.cal-day.heat-1 { background: rgba(200, 90, 42, 0.04); }
+.cal-day.heat-2 { background: rgba(200, 90, 42, 0.08); }
+.cal-day.heat-3 { background: rgba(200, 90, 42, 0.14); }
+.cal-day.heat-4 { background: rgba(200, 90, 42, 0.20); }
+
+.cal-day.today.heat-1,
+.cal-day.today.heat-2,
+.cal-day.today.heat-3,
+.cal-day.today.heat-4 {
+  background: var(--color-primary-10); /* today always uses brand tint */
+}
+
+/* Weekend columns */
+.cal-day.weekend .cal-day-num {
+  color: var(--text-secondary);
+}
+
+/* ── Calendar Sidebar ── */
+.calendar-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Month Summary Card ── */
+.cal-summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.cal-summary-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cal-summary-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cal-summary-body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cal-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal-summary-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cal-summary-value {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Day Detail Panel ── */
+.cal-detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.cal-detail-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cal-detail-date {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cal-detail-total {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.cal-detail-body {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Each expense in detail panel */
+.cal-expense-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cal-expense-row:last-child { border-bottom: none; }
+
+.cal-expense-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.cal-expense-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cal-expense-name {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-expense-cat {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.cal-expense-amount {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* No expenses on selected day */
+.cal-detail-empty {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.cal-detail-empty-icon {
+  font-size: 32px;
+  margin-bottom: var(--space-2);
+}
+
+/* ── Heat Map Legend ── */
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-app);
+}
+
+.heat-legend-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.heat-legend-swatches {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.heat-swatch {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .cal-day {
+    min-height: 56px;
+    padding: var(--space-1);
+  }
+
+  .cal-day-num {
+    width: 22px; height: 22px;
+    font-size: var(--font-size-xs);
+  }
+
+  .cal-day-amount {
+    font-size: 9px;
+  }
+
+  .cal-day-dots { display: none; }
+
+  .calendar-month-label {
+    font-size: var(--font-size-base);
+  }
+}

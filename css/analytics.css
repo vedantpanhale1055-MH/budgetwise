@@ -1,0 +1,454 @@
+/* ============================================================
+   BudgetWise — Analytics View Styles
+   File 14 of 39 | Save as: css/analytics.css
+   ============================================================ */
+
+/* ── Page Header ── */
+.analytics-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.analytics-header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.analytics-header p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Time period picker */
+.period-tabs {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.period-tab {
+  padding: 5px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  border: none;
+  background: none;
+  white-space: nowrap;
+}
+
+.period-tab:hover { color: var(--text-primary); }
+
+.period-tab.active {
+  background: var(--bg-card);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Analytics 2x2 Grid ── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+/* ── Chart Card (analytics variant) ── */
+.analytics-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-chart-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.analytics-chart-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.analytics-chart-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.analytics-chart-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--border-radius-full);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.analytics-chart-badge.up   { background: #ECFDF5; color: #059669; }
+.analytics-chart-badge.down { background: #FEF2F2; color: #DC2626; }
+
+.analytics-chart-body {
+  padding: var(--space-4) var(--space-5);
+  flex: 1;
+  position: relative;
+}
+
+/* Canvas heights per chart type */
+.chart-h-200 { height: 200px; }
+.chart-h-220 { height: 220px; }
+.chart-h-180 { height: 180px; }
+
+/* ── Spending by Category (horizontal bar chart) ── */
+.category-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.cat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cat-bar-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cat-bar-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.cat-bar-icon {
+  width: 22px; height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.cat-bar-amount {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+}
+
+.cat-bar-pct {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-left: var(--space-2);
+}
+
+.cat-bar-track {
+  height: 7px;
+  background: var(--bg-input);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Spending Distribution (donut) ── */
+.distribution-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+}
+
+.distribution-donut-wrap {
+  position: relative;
+  height: 160px;
+}
+
+.distribution-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.distribution-center-value {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  line-height: 1;
+  display: block;
+}
+
+.distribution-center-label {
+  font-size: 9px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.distribution-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dist-legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dist-legend-color {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.dist-legend-name {
+  flex: 1;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dist-legend-pct {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Top Spending Days ── */
+.top-days-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.top-day-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.top-day-rank {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+  color: white;
+}
+
+.top-day-rank.rank-1 { background: #F59E0B; }
+.top-day-rank.rank-2 { background: var(--text-tertiary); }
+.top-day-rank.rank-3 { background: #CD7C2F; }
+.top-day-rank.rank-other { background: var(--bg-input); color: var(--text-secondary); }
+
+.top-day-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.top-day-date {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.top-day-count {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.top-day-bar-wrap {
+  flex: 2;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.top-day-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--color-primary);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.top-day-amount {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── Monthly Trend (line chart) ── */
+.trend-stats {
+  display: flex;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.trend-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trend-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.trend-stat-value {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trend-stat-change {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+.trend-stat-change.up   { color: #059669; }
+.trend-stat-change.down { color: #DC2626; }
+
+/* ── Member Comparison ── */
+.member-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.member-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.member-bar-avatar {
+  flex-shrink: 0;
+}
+
+.member-bar-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-bar-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.member-bar-track {
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.member-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+.member-bar-amount {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .period-tabs {
+    align-self: flex-start;
+  }
+
+  .distribution-body {
+    grid-template-columns: 1fr;
+  }
+
+  .distribution-donut-wrap {
+    height: 200px;
+  }
+
+  .trend-stats {
+    gap: var(--space-4);
+  }
+}

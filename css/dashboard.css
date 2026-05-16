@@ -1,0 +1,564 @@
+/* ============================================================
+   BudgetWise — Dashboard Styles
+   File 11 of 39 | Save as: css/dashboard.css
+   ============================================================ */
+
+/* ── Dashboard Layout ── */
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── KPI Cards Row ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+/* ── KPI Card (Style A — serif numbers, corner accent) ── */
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4) var(--space-5);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  cursor: default;
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Corner accent line — distinctive Style A element */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 64px; height: 4px;
+  border-radius: 0 0 0 4px;
+}
+
+.kpi-card.kpi-orange::before  { background: var(--color-primary); }
+.kpi-card.kpi-green::before   { background: #10B981; }
+.kpi-card.kpi-blue::before    { background: #3B82F6; }
+.kpi-card.kpi-purple::before  { background: #8B5CF6; }
+
+/* Small icon in top-left */
+.kpi-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: var(--space-3);
+}
+
+.kpi-card.kpi-orange .kpi-icon { background: #FFF7ED; }
+.kpi-card.kpi-green  .kpi-icon { background: #ECFDF5; }
+.kpi-card.kpi-blue   .kpi-icon { background: #EFF6FF; }
+.kpi-card.kpi-purple .kpi-icon { background: #F5F3FF; }
+
+.kpi-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ₹ serif number — the key Style A detail */
+.kpi-value {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-2);
+}
+
+.kpi-value .kpi-currency {
+  font-size: var(--font-size-lg);
+  vertical-align: top;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+/* Change indicator */
+.kpi-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--border-radius-full);
+}
+
+.kpi-change.up {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.kpi-change.down {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.kpi-change.neutral {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.kpi-sub {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* Progress bar inside Budget card */
+.kpi-progress {
+  margin-top: var(--space-3);
+}
+
+.kpi-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* ── Skeleton for KPI cards ── */
+.kpi-card-skeleton {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Main Row: Charts + Sidebar ── */
+.dashboard-main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+/* ── Daily Spending Chart Card ── */
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+  gap: var(--space-3);
+}
+
+.chart-card-title-group {
+  flex: 1;
+}
+
+.chart-card-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chart-card-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.chart-period-select {
+  padding: 5px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  outline: none;
+}
+
+.chart-body {
+  padding: var(--space-4) var(--space-5);
+  position: relative;
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  height: 200px;
+}
+
+/* Chart legend */
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-line {
+  width: 16px; height: 2px;
+  flex-shrink: 0;
+  border-top: 2px dashed;
+}
+
+/* ── Dashboard Sidebar (right column) ── */
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Budget Mini Card ── */
+.budget-mini-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.budget-mini-header {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.budget-mini-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.budget-mini-link {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.budget-mini-body {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.budget-mini-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.budget-mini-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.budget-mini-cat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.budget-mini-cat-icon {
+  width: 20px; height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.budget-mini-pct {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.budget-mini-pct.warning { color: #D97706; }
+.budget-mini-pct.danger  { color: #DC2626; }
+
+/* ── Donut Chart Card ── */
+.donut-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.donut-card-header {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.donut-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.donut-body {
+  padding: var(--space-3) var(--space-4);
+}
+
+.donut-canvas-wrap {
+  height: 180px;
+  position: relative;
+  margin: 0 auto;
+}
+
+/* Center label inside donut */
+.donut-center-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-center-amount {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  line-height: 1;
+  display: block;
+}
+
+.donut-center-label-text {
+  font-size: 9px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.donut-legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.donut-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-legend-label {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.donut-legend-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Recent Expenses ── */
+.recent-expenses-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.recent-view-all {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.recent-view-all:hover { text-decoration: underline; }
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-table th {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-5);
+  text-align: left;
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-table td {
+  padding: 12px var(--space-5);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.recent-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recent-table tr {
+  transition: background var(--transition-fast);
+}
+
+.recent-table tr:hover td {
+  background: var(--bg-app);
+}
+
+/* Expense description cell */
+.expense-desc-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.expense-cat-icon {
+  width: 34px; height: 34px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.expense-desc-text {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.expense-desc-date {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.expense-amount {
+  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .dashboard-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-value {
+    font-size: var(--font-size-xl);
+  }
+
+  /* Hide some columns on mobile */
+  .recent-table .col-member { display: none; }
+  .recent-table .col-date   { display: none; }
+
+  .recent-table th,
+  .recent-table td {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+@media (max-width: 400px) {
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+}

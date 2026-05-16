@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetWise — Family Expense Tracker</title>
+  <meta name="description" content="BudgetWise — AI-powered family expense tracker. Track, analyze, and reduce shared household spending together." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C85A2A'/><path d='M16 6L6 14h3v11h6v-7h2v7h6V14h3z' fill='white'/></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:       #C85A2A;
+      --orange-dark:  #A84820;
+      --orange-light: rgba(200,90,42,0.10);
+      --cream:        #FBF8F4;
+      --cream-dark:   #F5F0EA;
+      --border:       #E8E0D5;
+      --text-primary: #2C2420;
+      --text-mid:     #7A6A5E;
+      --text-light:   #B09A8A;
+      --success:      #2D7A4F;
+      --danger:       #DC2626;
+      --surface:      #FFFFFF;
+      --radius-sm:    6px;
+      --radius-md:    10px;
+      --radius-lg:    14px;
+      --radius-xl:    20px;
+      --shadow-sm:    0 1px 3px rgba(44,36,32,0.08);
+      --shadow-md:    0 4px 16px rgba(44,36,32,0.10);
+      --shadow-lg:    0 8px 32px rgba(44,36,32,0.12);
+      --font-body:    'DM Sans', sans-serif;
+      --font-display: 'DM Serif Display', serif;
+      --transition:   0.18s ease;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page layout ──────────────────────────────────────── */
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left panel — form ────────────────────────────────── */
+    .auth-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 48px 56px;
+      background: var(--surface);
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-form-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Logo */
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+      text-decoration: none;
+    }
+
+    .auth-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--orange);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .auth-logo-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: white;
+    }
+
+    .auth-logo-text h1 {
+      font-family: var(--font-body);
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .auth-logo-text span {
+      font-size: 0.75rem;
+      color: var(--text-mid);
+      font-weight: 500;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-mid);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color var(--transition), border-color var(--transition);
+      font-family: var(--font-body);
+    }
+
+    .auth-tab.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+    }
+
+    .auth-tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Form panels */
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    /* Form group */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--text-light);
+      font-size: 1rem;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(200, 90, 42, 0.1);
+    }
+
+    .form-input::placeholder { color: var(--text-light); }
+
+    .input-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 1rem;
+      padding: 4px;
+      transition: color var(--transition);
+      line-height: 1;
+    }
+
+    .input-toggle:hover { color: var(--text-primary); }
+
+    /* Error message */
+    .form-error {
+      display: none;
+      font-size: 0.8125rem;
+      color: var(--danger);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .form-error.visible { display: block; }
+
+    /* Primary button */
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--orange);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--orange-dark);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-text { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Divider */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-divider span {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    /* Demo button */
+    .btn-demo {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: var(--orange);
+      border: 1.5px dashed var(--orange);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-demo:hover {
+      background: var(--orange-light);
+    }
+
+    /* Switch link */
+    .auth-switch {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 0.875rem;
+      color: var(--text-mid);
+    }
+
+    .auth-switch a {
+      color: var(--orange);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* ── Family setup screen ──────────────────────────────── */
+    .family-setup {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .family-setup.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .family-setup-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .family-setup-sub {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      margin-bottom: 28px;
+    }
+
+    .family-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .family-option-card {
+      padding: 20px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      text-align: center;
+    }
+
+    .family-option-card:hover,
+    .family-option-card.selected {
+      border-color: var(--orange);
+      background: var(--orange-light);
+    }
+
+    .family-option-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .family-option-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .family-option-desc {
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      line-height: 1.4;
+    }
+
+    .family-input-section { display: none; }
+    .family-input-section.active { display: block; animation: fadeIn 0.2s ease; }
+
+    /* ── Right panel — illustration ───────────────────────── */
+    .auth-right {
+      background: linear-gradient(135deg, #FDF0E8 0%, #F5E8DC 50%, #EDD5C0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(200,90,42,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(200,90,42,0.06) 0%, transparent 50%);
+    }
+
+    .auth-illustration {
+      position: relative;
+      z-index: 1;
+      max-width: 460px;
+      width: 100%;
+    }
+
+    .auth-tagline {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-top: 36px;
+    }
+
+    .auth-tagline h2 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .auth-tagline p {
+      font-size: 0.9375rem;
+      color: var(--text-mid);
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    /* Feature pills */
+    .auth-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-feature-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(200,90,42,0.15);
+      border-radius: 99px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      backdrop-filter: blur(8px);
+    }
+
+    .auth-feature-pill span { color: var(--orange); }
+
+    /* ── SVG Illustration ─────────────────────────────────── */
+    .illustration-svg {
+      width: 100%;
+      max-width: 420px;
+      filter: drop-shadow(0 20px 40px rgba(44,36,32,0.12));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    /* ── Toast ────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      padding: 14px 18px;
+      background: var(--text-primary);
+      color: white;
+      border-radius: var(--radius-lg);
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      max-width: 340px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--danger); }
+
+    /* ── Mobile responsive ────────────────────────────────── */
+    @media (max-width: 768px) {
+      .auth-page {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .auth-right {
+        display: none;
+      }
+
+      .auth-left {
+        padding: 32px 24px;
+        justify-content: flex-start;
+        padding-top: 48px;
+      }
+
+      .auth-form-wrap {
+        max-width: 100%;
+      }
+
+      .family-options {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .family-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-page">
+
+  <!-- ── LEFT PANEL — Form ─────────────────────────────────── -->
+  <div class="auth-left">
+    <div class="auth-form-wrap">
+
+      <!-- Logo -->
+      <a class="auth-logo" href="#">
+        <div class="auth-logo-icon">
+          <!-- House SVG icon -->
+          <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L2 11h3v12h6v-8h4v8h6V11h3z"/>
+          </svg>
+        </div>
+        <div class="auth-logo-text">
+          <h1>BudgetWise</h1>
+          <span>Family Expense Tracker</span>
+        </div>
+      </a>
+
+      <!-- ── AUTH FORM (shown first) ──────────────────────── -->
+      <div id="authForm">
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+          <button class="auth-tab active" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Sign In panel -->
+        <div class="auth-panel" id="panelSignIn">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input class="form-input" id="signinEmail" type="email" placeholder="Enter your email address" autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="form-input" id="signinPassword" type="password" placeholder="Enter your password" autocomplete="current-password" />
+              <button class="input-toggle" onclick="togglePassword('signinPassword', this)" type="button">👁️</button>
+            </div>
+          </div>
+          <div class="form-error" id="signinError"></div>
+          <button class="btn-primary" id="signinBtn" onclick="handleSignIn()">
+            <div class="spinner"></div>
+            <span class="btn-text">Sign In</span>
+          </button>
+          <div class="auth-divider"><span>or</span></div>
+          <button class="btn-demo" onclick="handleDemo()">⏱️ Try Demo</button>
+          <p class="auth-switch">Don't have an account? <a onclick="switchTab('signup')">Sign Up</a></p>
+        </div>
+
+        <!-- Sign Up panel -->
+        <div class="auth-panel active" id="panelSignUp">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input class="form-input" id="signupName" type="text" placeholder="Enter your full name" autocomplete="name" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input class="form-input" id="signupEmail" type="email" placeholder="Enter your email address" autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="form-input" id="signupPassword" type="password" placeholder="Create a password (min 6 chars)" autocomplete="new-password" />
+              <button class="input-toggle" onclick="togglePassword('signupPassword', this)" type="button">👁️</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="form-input" id="signupConfirm" type="password" placeholder="Confirm your password" autocomplete="new-password" />
+              <button class="input-toggle" onclick="togglePassword('signupConfirm', this)" type="button">👁️</button>
+            </div>
+          </div>
+          <div class="form-error" id="signupError"></div>
+          <button class="btn-primary" id="signupBtn" onclick="handleSignUp()">
+            <div class="spinner"></div>
+            <span class="btn-text">Create Account</span>
+          </button>
+          <div class="auth-divider"><span>or</span></div>
+          <button class="btn-demo" onclick="handleDemo()">⏱️ Try Demo</button>
+          <p class="auth-switch">Already have an account? <a onclick="switchTab('signin')">Sign In</a></p>
+        </div>
+
+      </div><!-- /authForm -->
+
+      <!-- ── FAMILY SETUP (shown after signup) ────────────── -->
+      <div class="family-setup" id="familySetup">
+
+        <h2 class="family-setup-title">Set up your family 🏠</h2>
+        <p class="family-setup-sub">Create a new family workspace or join an existing one with an invite code.</p>
+
+        <div class="family-options">
+          <div class="family-option-card" id="optCreate" onclick="selectFamilyOption('create')">
+            <div class="family-option-icon">🏡</div>
+            <div class="family-option-title">Create Family</div>
+            <div class="family-option-desc">Start a new family workspace and invite members</div>
+          </div>
+          <div class="family-option-card" id="optJoin" onclick="selectFamilyOption('join')">
+            <div class="family-option-icon">🤝</div>
+            <div class="family-option-title">Join Family</div>
+            <div class="family-option-desc">Enter an invite code from your family admin</div>
+          </div>
+        </div>
+
+        <!-- Create family input -->
+        <div class="family-input-section" id="createSection">
+          <div class="form-group">
+            <label class="form-label">Family Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">🏠</span>
+              <input class="form-input" id="familyName" type="text" placeholder="e.g. The Sharma Family" />
+            </div>
+          </div>
+          <div class="form-error" id="createError"></div>
+          <button class="btn-primary" id="createBtn" onclick="handleCreateFamily()">
+            <div class="spinner"></div>
+            <span class="btn-text">Create Family & Continue →</span>
+          </button>
+        </div>
+
+        <!-- Join family input -->
+        <div class="family-input-section" id="joinSection">
+          <div class="form-group">
+            <label class="form-label">Invite Code</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input class="form-input" id="inviteCode" type="text" placeholder="e.g. BWS-4821" style="text-transform:uppercase;letter-spacing:0.1em;font-weight:600;" />
+            </div>
+          </div>
+          <div class="form-error" id="joinError"></div>
+          <button class="btn-primary" id="joinBtn" onclick="handleJoinFamily()">
+            <div class="spinner"></div>
+            <span class="btn-text">Join Family & Continue →</span>
+          </button>
+        </div>
+
+      </div><!-- /familySetup -->
+
+    </div><!-- /auth-form-wrap -->
+  </div><!-- /auth-left -->
+
+
+  <!-- ── RIGHT PANEL — Illustration ────────────────────────── -->
+  <div class="auth-right">
+
+    <!-- SVG Illustration -->
+    <svg class="illustration-svg" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background circles -->
+      <circle cx="240" cy="180" r="160" fill="rgba(200,90,42,0.06)"/>
+      <circle cx="240" cy="180" r="120" fill="rgba(200,90,42,0.04)"/>
+
+      <!-- House body -->
+      <rect x="140" y="175" width="200" height="140" rx="8" fill="#F5E8DC"/>
+      <rect x="140" y="175" width="200" height="140" rx="8" fill="white" opacity="0.6"/>
+
+      <!-- Roof -->
+      <polygon points="120,178 240,90 360,178" fill="#C85A2A"/>
+      <polygon points="120,178 240,90 360,178" fill="#C85A2A" opacity="0.9"/>
+
+      <!-- Roof highlight -->
+      <polygon points="130,178 240,100 350,178" fill="rgba(255,255,255,0.15)"/>
+
+      <!-- Door -->
+      <rect x="208" y="245" width="64" height="70" rx="6" fill="#A84820"/>
+      <circle cx="264" cy="282" r="4" fill="#F5E8DC"/>
+
+      <!-- Windows -->
+      <rect x="155" y="200" width="55" height="45" rx="5" fill="white" stroke="#E8E0D5" stroke-width="1.5"/>
+      <line x1="182" y1="200" x2="182" y2="245" stroke="#E8E0D5" stroke-width="1.5"/>
+      <line x1="155" y1="222" x2="210" y2="222" stroke="#E8E0D5" stroke-width="1.5"/>
+
+      <rect x="270" y="200" width="55" height="45" rx="5" fill="white" stroke="#E8E0D5" stroke-width="1.5"/>
+      <line x1="297" y1="200" x2="297" y2="245" stroke="#E8E0D5" stroke-width="1.5"/>
+      <line x1="270" y1="222" x2="325" y2="222" stroke="#E8E0D5" stroke-width="1.5"/>
+
+      <!-- Chimney -->
+      <rect x="290" y="105" width="24" height="40" rx="3" fill="#A84820"/>
+
+      <!-- Wallet card — floating left -->
+      <g transform="translate(42, 140)">
+        <rect width="110" height="70" rx="10" fill="white" stroke="#E8E0D5" stroke-width="1.5"
+              filter="url(#shadow)"/>
+        <rect width="110" height="22" rx="10" fill="#C85A2A" opacity="0.9"/>
+        <rect y="10" width="110" height="12" fill="#C85A2A" opacity="0.9"/>
+        <text x="10" y="46" font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#7A6A5E">Monthly Spend</text>
+        <text x="10" y="60" font-family="DM Serif Display,serif" font-size="13" font-weight="700" fill="#C85A2A">₹68,540</text>
+        <text x="72" y="60" font-family="DM Sans,sans-serif" font-size="7" fill="#2D7A4F" font-weight="600">▲ 12.5%</text>
+      </g>
+
+      <!-- Chart card — floating right -->
+      <g transform="translate(328, 120)">
+        <rect width="115" height="80" rx="10" fill="white" stroke="#E8E0D5" stroke-width="1.5"/>
+        <text x="10" y="20" font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#7A6A5E">Daily Spending</text>
+        <!-- Mini bar chart -->
+        <rect x="10" y="55" width="10" height="15" rx="2" fill="#C85A2A" opacity="0.4"/>
+        <rect x="24" y="42" width="10" height="28" rx="2" fill="#C85A2A" opacity="0.6"/>
+        <rect x="38" y="35" width="10" height="35" rx="2" fill="#C85A2A" opacity="0.8"/>
+        <rect x="52" y="48" width="10" height="22" rx="2" fill="#C85A2A"/>
+        <rect x="66" y="38" width="10" height="32" rx="2" fill="#C85A2A" opacity="0.7"/>
+        <rect x="80" y="50" width="10" height="20" rx="2" fill="#C85A2A" opacity="0.5"/>
+        <rect x="94" y="44" width="10" height="26" rx="2" fill="#C85A2A" opacity="0.65"/>
+      </g>
+
+      <!-- Rupee coin -->
+      <g transform="translate(88, 248)">
+        <circle cx="24" cy="24" r="24" fill="#F5C842"/>
+        <circle cx="24" cy="24" r="20" fill="#F0BC30"/>
+        <text x="24" y="30" text-anchor="middle" font-family="DM Sans,sans-serif"
+              font-size="18" font-weight="700" fill="#8B6500">₹</text>
+      </g>
+
+      <!-- Second coin -->
+      <g transform="translate(60, 268)">
+        <circle cx="20" cy="20" r="20" fill="#F5C842" opacity="0.8"/>
+        <circle cx="20" cy="20" r="16" fill="#F0BC30" opacity="0.8"/>
+        <text x="20" y="25" text-anchor="middle" font-family="DM Sans,sans-serif"
+              font-size="14" font-weight="700" fill="#8B6500" opacity="0.8">₹</text>
+      </g>
+
+      <!-- Calculator -->
+      <g transform="translate(330, 218)">
+        <rect width="80" height="100" rx="8" fill="#3D3530"/>
+        <rect x="8" y="8" width="64" height="28" rx="4" fill="#C85A2A" opacity="0.9"/>
+        <text x="40" y="28" text-anchor="middle" font-family="DM Sans,sans-serif"
+              font-size="11" font-weight="700" fill="white">12,650</text>
+        <!-- Calc buttons grid -->
+        <rect x="10" y="44" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="28" y="44" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="46" y="44" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="64" y="44" width="8"  height="10" rx="2" fill="#C85A2A" opacity="0.8"/>
+        <rect x="10" y="58" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="28" y="58" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="46" y="58" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="64" y="58" width="8"  height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="10" y="72" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="28" y="72" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="46" y="72" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="64" y="72" width="8"  height="22" rx="2" fill="#C85A2A" opacity="0.8"/>
+        <rect x="10" y="86" width="32" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <rect x="46" y="86" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+      </g>
+
+      <!-- Donut chart snippet -->
+      <g transform="translate(42, 240)">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#E8E0D5" stroke-width="10"/>
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#C85A2A" stroke-width="10"
+                stroke-dasharray="70 106" stroke-dashoffset="26"/>
+        <circle cx="30" cy="30" r="28" fill="none" stroke="#F5C842" stroke-width="10"
+                stroke-dasharray="30 146" stroke-dashoffset="-44"/>
+        <circle cx="30" cy="30" r="18" fill="white"/>
+      </g>
+
+      <!-- Decorative dots -->
+      <circle cx="420" cy="60"  r="5" fill="#C85A2A" opacity="0.3"/>
+      <circle cx="435" cy="75"  r="3" fill="#C85A2A" opacity="0.2"/>
+      <circle cx="450" cy="60"  r="4" fill="#C85A2A" opacity="0.25"/>
+      <circle cx="420" cy="90"  r="3" fill="#C85A2A" opacity="0.15"/>
+      <circle cx="450" cy="85"  r="5" fill="#C85A2A" opacity="0.2"/>
+
+      <circle cx="30"  cy="80"  r="4" fill="#C85A2A" opacity="0.2"/>
+      <circle cx="50"  cy="65"  r="3" fill="#C85A2A" opacity="0.15"/>
+      <circle cx="20"  cy="100" r="5" fill="#C85A2A" opacity="0.1"/>
+
+      <!-- Shadow filter -->
+      <defs>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(44,36,32,0.12)"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Tagline -->
+    <div class="auth-tagline">
+      <h2>Track Together, Save Together</h2>
+      <p>One place for the whole family to manage money, split expenses, and reach financial goals.</p>
+    </div>
+
+    <!-- Feature pills -->
+    <div class="auth-features">
+      <div class="auth-feature-pill"><span>🤖</span> AI Advisor</div>
+      <div class="auth-feature-pill"><span>📷</span> Receipt Scanner</div>
+      <div class="auth-feature-pill"><span>⚡</span> Real-time Sync</div>
+      <div class="auth-feature-pill"><span>📊</span> Smart Analytics</div>
+    </div>
+
+  </div><!-- /auth-right -->
+
+</div><!-- /auth-page -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  // ── Supabase init ────────────────────────────────────────
+  // Replace these with your actual Supabase values
+  // In production these come from import.meta.env via Vite build
+  const SUPABASE_URL  = window.__SUPABASE_URL__  || '';
+  const SUPABASE_KEY  = window.__SUPABASE_KEY__  || '';
+
+  let supabase = null;
+  try {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch (e) {
+    console.warn('Supabase not configured — demo mode available');
+  }
+
+  // ── State ────────────────────────────────────────────────
+  let currentUser = null;
+
+  // ── Check existing session ───────────────────────────────
+  if (supabase) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.href = './app.html';
+    }
+  }
+
+  // Check demo mode
+  if (sessionStorage.getItem('bw_demo') === 'true') {
+    window.location.href = './app.html';
+  }
+
+  // ── Tab switching ────────────────────────────────────────
+  window.switchTab = (tab) => {
+    document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
+    document.getElementById('tabSignUp').classList.toggle('active', tab === 'signup');
+    document.getElementById('panelSignIn').classList.toggle('active', tab === 'signin');
+    document.getElementById('panelSignUp').classList.toggle('active', tab === 'signup');
+    clearErrors();
+  };
+
+  // ── Password toggle ──────────────────────────────────────
+  window.togglePassword = (id, btn) => {
+    const input = document.getElementById(id);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
+  };
+
+  // ── Sign Up ──────────────────────────────────────────────
+  window.handleSignUp = async () => {
+    const name     = document.getElementById('signupName').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm  = document.getElementById('signupConfirm').value;
+    const errEl    = document.getElementById('signupError');
+    const btn      = document.getElementById('signupBtn');
+
+    // Validate
+    if (!name)                         return showError(errEl, 'Please enter your full name.');
+    if (!email || !email.includes('@'))return showError(errEl, 'Please enter a valid email address.');
+    if (password.length < 6)           return showError(errEl, 'Password must be at least 6 characters.');
+    if (password !== confirm)          return showError(errEl, 'Passwords do not match.');
+
+    clearErrors();
+    setLoading(btn, true);
+
+    if (!supabase) {
+      // No Supabase configured — go to demo
+      setLoading(btn, false);
+      showToast('Supabase not configured. Launching demo mode.', 'info');
+      setTimeout(() => handleDemo(), 1200);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+
+      // Create profile
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id:           data.user.id,
+        name,
+        email,
+        avatar_color: randomColor(),
+        role:         'admin',
+      });
+      if (profileError && !profileError.message.includes('duplicate')) throw profileError;
+
+      currentUser = data.user;
+      setLoading(btn, false);
+      showFamilySetup();
+    } catch (err) {
+      setLoading(btn, false);
+      showError(errEl, err.message || 'Sign up failed. Please try again.');
+    }
+  };
+
+  // ── Sign In ──────────────────────────────────────────────
+  window.handleSignIn = async () => {
+    const email    = document.getElementById('signinEmail').value.trim();
+    const password = document.getElementById('signinPassword').value;
+    const errEl    = document.getElementById('signinError');
+    const btn      = document.getElementById('signinBtn');
+
+    if (!email)    return showError(errEl, 'Please enter your email.');
+    if (!password) return showError(errEl, 'Please enter your password.');
+
+    clearErrors();
+    setLoading(btn, true);
+
+    if (!supabase) {
+      setLoading(btn, false);
+      showToast('Supabase not configured. Launching demo mode.', 'info');
+      setTimeout(() => handleDemo(), 1200);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      showToast('Welcome back! Loading your dashboard...', 'success');
+      setTimeout(() => window.location.href = './app.html', 800);
+    } catch (err) {
+      setLoading(btn, false);
+      showError(errEl, 'Invalid email or password. Please try again.');
+    }
+  };
+
+  // ── Demo mode ────────────────────────────────────────────
+  window.handleDemo = () => {
+    sessionStorage.setItem('bw_demo', 'true');
+    showToast('Loading demo... Welcome to BudgetWise! 🎉', 'success');
+    setTimeout(() => window.location.href = './app.html', 900);
+  };
+
+  // ── Family setup ─────────────────────────────────────────
+  let selectedFamilyOption = null;
+
+  const showFamilySetup = () => {
+    document.getElementById('authForm').style.display = 'none';
+    document.getElementById('familySetup').classList.add('active');
+  };
+
+  window.selectFamilyOption = (option) => {
+    selectedFamilyOption = option;
+    document.getElementById('optCreate').classList.toggle('selected', option === 'create');
+    document.getElementById('optJoin').classList.toggle('selected', option === 'join');
+    document.getElementById('createSection').classList.toggle('active', option === 'create');
+    document.getElementById('joinSection').classList.toggle('active', option === 'join');
+  };
+
+  window.handleCreateFamily = async () => {
+    const name  = document.getElementById('familyName').value.trim();
+    const errEl = document.getElementById('createError');
+    const btn   = document.getElementById('createBtn');
+
+    if (!name) return showError(errEl, 'Please enter a family name.');
+
+    clearErrors();
+    setLoading(btn, true);
+
+    try {
+      const code = generateCode();
+      const { data, error } = await supabase.from('households').insert({
+        name,
+        invite_code: code,
+        created_by:  currentUser.id,
+      }).select().single();
+      if (error) throw error;
+
+      // Link user to household
+      await supabase.from('profiles').update({ household_id: data.id, role: 'admin' })
+        .eq('id', currentUser.id);
+
+      showToast(`Family created! Invite code: ${code}`, 'success');
+      setTimeout(() => window.location.href = './app.html', 1000);
+    } catch (err) {
+      setLoading(btn, false);
+      showError(errEl, err.message || 'Failed to create family. Please try again.');
+    }
+  };
+
+  window.handleJoinFamily = async () => {
+    const code  = document.getElementById('inviteCode').value.trim().toUpperCase();
+    const errEl = document.getElementById('joinError');
+    const btn   = document.getElementById('joinBtn');
+
+    if (!code) return showError(errEl, 'Please enter an invite code.');
+
+    clearErrors();
+    setLoading(btn, true);
+
+    try {
+      const { data: household, error } = await supabase.from('households')
+        .select('id, name').eq('invite_code', code).single();
+      if (error || !household) throw new Error('Invalid invite code. Please check and try again.');
+
+      await supabase.from('profiles').update({ household_id: household.id, role: 'member' })
+        .eq('id', currentUser.id);
+
+      showToast(`Joined ${household.name}! Loading dashboard...`, 'success');
+      setTimeout(() => window.location.href = './app.html', 1000);
+    } catch (err) {
+      setLoading(btn, false);
+      showError(errEl, err.message || 'Failed to join family. Please try again.');
+    }
+  };
+
+  // ── Helpers ──────────────────────────────────────────────
+  const clearErrors = () => {
+    document.querySelectorAll('.form-error').forEach(el => {
+      el.classList.remove('visible');
+      el.textContent = '';
+    });
+  };
+
+  const showError = (el, msg) => {
+    el.textContent = msg;
+    el.classList.add('visible');
+  };
+
+  const setLoading = (btn, loading) => {
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+  };
+
+  const generateCode = () => {
+    const n = Math.floor(1000 + Math.random() * 9000);
+    return `BWS-${n}`;
+  };
+
+  const randomColor = () => {
+    const colors = ['#C85A2A','#2D7A4F','#1A5FA8','#7C3AED','#BE185D','#B45309'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  const showToast = (msg, type = 'info') => {
+    const toast = document.getElementById('toast');
+    const icon  = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `${icon} ${msg}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  };
+
+  // Enter key on password fields
+  document.getElementById('signinPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSignIn();
+  });
+  document.getElementById('signupConfirm').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSignUp();
+  });
+</script>
+
+</body>
+</html>
