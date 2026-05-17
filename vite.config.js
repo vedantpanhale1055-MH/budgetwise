@@ -40,7 +40,7 @@ export default defineConfig({
   // https://yourusername.github.io/budgetwise
   //
   // If using a custom domain, set base: '/'
-  base: '/budgetwise/',
+  base: '/',
 
   // ── Path aliases ────────────────────────────────────────
   // Lets you import with @/ instead of ../../
