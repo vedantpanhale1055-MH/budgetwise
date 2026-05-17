@@ -9,11 +9,6 @@ import { showToast } from './utils.js';
 
 // ── Guard: require auth on app.html ──────────────────────────
 export const requireAuth = async () => {
-  // Allow demo mode
-  if (sessionStorage.getItem('bw_demo') === 'true') {
-    return { demo: true };
-  }
-
   if (!supabase) {
     window.location.href = './index.html';
     return null;
@@ -28,8 +23,8 @@ export const requireAuth = async () => {
   // Fetch full profile + household
   const profile = await fetchProfile(session.user.id);
   if (!profile || !profile.household_id) {
-    // Signed in but no household — send back to setup
-    await signOut();
+    // Signed in but no household yet — send back to finish setup
+    // Do NOT sign out — keep session so index.html can show family setup
     window.location.href = './index.html';
     return null;
   }
@@ -44,7 +39,6 @@ export const requireAuth = async () => {
 // ── Sign out handler ──────────────────────────────────────────
 export const handleSignOut = async () => {
   try {
-    sessionStorage.removeItem('bw_demo');
     await signOut();
     window.location.href = './index.html';
   } catch (err) {

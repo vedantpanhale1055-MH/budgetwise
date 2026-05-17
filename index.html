@@ -275,51 +275,6 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Divider */
-    .auth-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 18px 0;
-    }
-
-    .auth-divider::before,
-    .auth-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .auth-divider span {
-      font-size: 0.8125rem;
-      color: var(--text-light);
-      font-weight: 500;
-    }
-
-    /* Demo button */
-    .btn-demo {
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      color: var(--orange);
-      border: 1.5px dashed var(--orange);
-      border-radius: var(--radius-md);
-      font-size: 0.9375rem;
-      font-weight: 600;
-      font-family: var(--font-body);
-      cursor: pointer;
-      transition: background var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-demo:hover {
-      background: var(--orange-light);
-    }
-
     /* Switch link */
     .auth-switch {
       text-align: center;
@@ -612,8 +567,6 @@
             <div class="spinner"></div>
             <span class="btn-text">Sign In</span>
           </button>
-          <div class="auth-divider"><span>or</span></div>
-          <button class="btn-demo" onclick="handleDemo()">⏱️ Try Demo</button>
           <p class="auth-switch">Don't have an account? <a onclick="switchTab('signup')">Sign Up</a></p>
         </div>
 
@@ -654,8 +607,6 @@
             <div class="spinner"></div>
             <span class="btn-text">Create Account</span>
           </button>
-          <div class="auth-divider"><span>or</span></div>
-          <button class="btn-demo" onclick="handleDemo()">⏱️ Try Demo</button>
           <p class="auth-switch">Already have an account? <a onclick="switchTab('signin')">Sign In</a></p>
         </div>
 
@@ -874,8 +825,8 @@
   // ── Supabase init ────────────────────────────────────────
   // Replace these with your actual Supabase values
   // In production these come from import.meta.env via Vite build
-  const SUPABASE_URL  = window.__SUPABASE_URL__  || '';
-  const SUPABASE_KEY  = window.__SUPABASE_KEY__  || '';
+  const SUPABASE_URL  = import.meta.env.VITE_SUPABASE_URL      || '';
+  const SUPABASE_KEY  = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
   let supabase = null;
   try {
@@ -893,13 +844,22 @@
   if (supabase) {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      window.location.href = './app.html';
-    }
-  }
+      // Check if user already has a household
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('household_id')
+        .eq('id', session.user.id)
+        .single();
 
-  // Check demo mode
-  if (sessionStorage.getItem('bw_demo') === 'true') {
-    window.location.href = './app.html';
+      if (profile?.household_id) {
+        window.location.href = './app.html';
+      } else {
+        // Logged in but no household — show family setup
+        currentUser = session.user;
+        document.getElementById('authForm').style.display = 'none';
+        document.getElementById('familySetup').classList.add('active');
+      }
+    }
   }
 
   // ── Tab switching ────────────────────────────────────────
@@ -942,10 +902,8 @@
     setLoading(btn, true);
 
     if (!supabase) {
-      // No Supabase configured — go to demo
       setLoading(btn, false);
-      showToast('Supabase not configured. Launching demo mode.', 'info');
-      setTimeout(() => handleDemo(), 1200);
+      showError(errEl, 'App not configured. Please contact support.');
       return;
     }
 
@@ -987,8 +945,7 @@
 
     if (!supabase) {
       setLoading(btn, false);
-      showToast('Supabase not configured. Launching demo mode.', 'info');
-      setTimeout(() => handleDemo(), 1200);
+      showError(errEl, 'App not configured. Please contact support.');
       return;
     }
 
@@ -1001,13 +958,6 @@
       setLoading(btn, false);
       showError(errEl, 'Invalid email or password. Please try again.');
     }
-  };
-
-  // ── Demo mode ────────────────────────────────────────────
-  window.handleDemo = () => {
-    sessionStorage.setItem('bw_demo', 'true');
-    showToast('Loading demo... Welcome to BudgetWise! 🎉', 'success');
-    setTimeout(() => window.location.href = './app.html', 900);
   };
 
   // ── Family setup ─────────────────────────────────────────

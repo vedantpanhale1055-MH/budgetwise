@@ -222,22 +222,12 @@ const saveBudgets = async () => {
       }
     }
 
-    if (store.isDemoMode) {
-      const { demoDb } = await import('../demo.js');
-      updates.forEach(u => {
-        demoDb.upsertBudget(u);
-        const idx = store.budgets.findIndex(b => b.category===u.category && b.month===u.month);
-        if (idx !== -1) store.budgets[idx] = { ...store.budgets[idx], ...u };
-        else store.budgets.push({ ...u, id: `b-${Date.now()}` });
-      });
-    } else {
-      await Promise.all(updates.map(u => upsertBudget(u)));
-      updates.forEach(u => {
-        const idx = store.budgets.findIndex(b => b.category===u.category && b.month===u.month);
-        if (idx !== -1) store.budgets[idx] = { ...store.budgets[idx], ...u };
-        else store.budgets.push({ ...u, id: `b-${Date.now()}` });
-      });
-    }
+    await Promise.all(updates.map(u => upsertBudget(u)));
+    updates.forEach(u => {
+      const idx = store.budgets.findIndex(b => b.category===u.category && b.month===u.month);
+      if (idx !== -1) store.budgets[idx] = { ...store.budgets[idx], ...u };
+      else store.budgets.push({ ...u, id: `b-${Date.now()}` });
+    });
 
     closeEditBudgets();
     showToast('Budgets saved!', 'success');

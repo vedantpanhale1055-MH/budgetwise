@@ -26,7 +26,10 @@ import { renderAIChat,
 import { fetchExpenses, fetchBudgets,
          fetchRecurring, fetchMembers,
          subscribeToExpenses }           from './supabase.js';
-
+import { DEMO_USER, DEMO_HOUSEHOLD,
+         DEMO_MEMBERS, DEMO_EXPENSES,
+         DEMO_BUDGETS, DEMO_RECURRING,
+         demoDb }                        from './demo.js';
 
 // ── Bootstrap ─────────────────────────────────────────────────
 const init = async () => {
@@ -34,15 +37,21 @@ const init = async () => {
   const isDark = initDarkMode();
   store.isDarkMode = isDark;
 
-  // 2. Check auth
+  // 2. Check auth / demo
   const profile = await requireAuth();
   if (!profile) return; // redirected to login
 
   // 3. Load data
-  store.user      = profile;
-  store.household = profile.households;
-  await loadRealData();
-  setupRealtime();
+  store.isDemoMode = profile.demo === true;
+
+  if (store.isDemoMode) {
+    loadDemoData();
+  } else {
+    store.user      = profile;
+    store.household = profile.households;
+    await loadRealData();
+    setupRealtime();
+  }
 
   // 4. Render shell
   renderShell();
@@ -68,6 +77,19 @@ const init = async () => {
       window.location.href = './index.html';
     }
   });
+
+  // 8. Show demo banner if demo mode
+  if (store.isDemoMode) showDemoBanner();
+};
+
+// ── Load demo data ────────────────────────────────────────────
+const loadDemoData = () => {
+  store.user      = DEMO_USER;
+  store.household = DEMO_HOUSEHOLD;
+  store.members   = DEMO_MEMBERS;
+  store.expenses  = [...demoDb.expenses];
+  store.budgets   = [...demoDb.budgets];
+  store.recurring = [...demoDb.recurring];
 };
 
 // ── Load real data from Supabase ──────────────────────────────
@@ -99,11 +121,13 @@ const loadRealData = async () => {
 // ── Realtime subscription ─────────────────────────────────────
 const setupRealtime = () => {
   subscribeToExpenses(store.household?.id, async (payload) => {
+    // Refetch expenses on any change from other devices
     const hid      = store.household?.id;
     const expenses = await fetchExpenses(hid);
     store.expenses = expenses;
     store.emit('expenses:changed', expenses);
 
+    // Refresh current view if dashboard or expenses
     if (store.currentTab === 'dashboard') renderDashboard();
     if (store.currentTab === 'expenses')  renderExpenses();
   });
@@ -340,11 +364,13 @@ const renderShell = () => {
 
 // ── Wire global events ────────────────────────────────────────
 const wireGlobalEvents = () => {
+  // Add expense button (topbar)
   document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
     navigateTo('expenses');
     setTimeout(() => openAddExpense(), 100);
   });
 
+  // Make openAddExpense global
   window.openAddExpense = openAddExpense;
   window.openSettings   = openSettings;
   window.closeSettings  = closeSettings;
@@ -376,6 +402,7 @@ const saveSettings = () => {
   setGroqKey(key);
   closeSettings();
   showToast(key ? 'Groq API key saved! ✅' : 'API key cleared.', 'success');
+  // Re-render AI chat if currently on that tab
   if (store.currentTab === 'ai-advisor') renderAIChat();
 };
 
@@ -402,7 +429,7 @@ const handleDarkMode = () => {
 
 // ── User menu ─────────────────────────────────────────────────
 const toggleUserMenu = (forceClose = null) => {
-  const menu = document.getElementById('userDropdown');
+  const menu   = document.getElementById('userDropdown');
   if (!menu) return;
   const isOpen = menu.style.display !== 'none';
   menu.style.display = (forceClose === false || forceClose === true)
@@ -423,8 +450,28 @@ const copyInviteCode = () => {
   if (code) copyToClipboard(code);
 };
 
+// ── Demo banner ───────────────────────────────────────────────
+const showDemoBanner = () => {
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position:fixed;top:0;left:0;right:0;z-index:9998;
+    background:var(--color-primary);color:white;
+    text-align:center;padding:8px;font-size:0.875rem;font-weight:600;
+    font-family:var(--font-body);
+  `;
+  banner.innerHTML = `
+    🎭 Demo Mode — Data is not saved.
+    <a href="./index.html" style="color:white;text-decoration:underline;margin-left:12px;">
+      Sign up to save your data →
+    </a>`;
+  document.body.prepend(banner);
+  // Push app down
+  const app = document.getElementById('app');
+  if (app) app.style.paddingTop = '36px';
+};
+
 // ── Mobile sidebar ────────────────────────────────────────────
-window.toggleMobileSidebar = async () => {
+window.toggleMobileSidebar = () => {
   const { toggleMobileSidebar } = await import('./router.js');
   toggleMobileSidebar();
 };

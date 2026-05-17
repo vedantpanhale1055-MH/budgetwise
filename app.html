@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetWise — Family Expense Tracker</title>
+  <meta name="description" content="BudgetWise — AI-powered family expense tracker." />
+  <meta name="theme-color" content="#C85A2A" />
+
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="BudgetWise" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C85A2A'/><path d='M16 6L6 14h3v11h6v-7h2v7h6V14h3z' fill='white'/></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- CSS files -->
+  <link rel="stylesheet" href="./css/design-system.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
+  <link rel="stylesheet" href="./css/expenses.css" />
+  <link rel="stylesheet" href="./css/calendar.css" />
+  <link rel="stylesheet" href="./css/analytics.css" />
+  <link rel="stylesheet" href="./css/budget.css" />
+  <link rel="stylesheet" href="./css/recurring.css" />
+  <link rel="stylesheet" href="./css/ai-chat.css" />
+
+  <style>
+    /* ── Page loading state ───────────────────────────── */
+    .app-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--color-bg-primary, #FBF8F4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.3s ease;
+    }
+
+    .app-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .loader-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: #C85A2A;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader-logo-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+
+    .loader-logo-text {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2C2420;
+    }
+
+    .loader-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(200, 90, 42, 0.2);
+      border-top-color: #C85A2A;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loader-text {
+      margin-top: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: #7A6A5E;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── App wrapper ──────────────────────────────────── */
+    #app {
+      display: flex;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading screen -->
+  <div class="app-loader" id="appLoader">
+    <div class="loader-logo">
+      <div class="loader-logo-icon">
+        <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2L2 11h3v12h6v-8h4v8h6V11h3z"/>
+        </svg>
+      </div>
+      <span class="loader-logo-text">BudgetWise</span>
+    </div>
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Loading your finances...</div>
+  </div>
+
+  <!-- App shell (populated by app.js) -->
+  <div id="app"></div>
+
+  <!-- Main JS entry point -->
+  <script type="module" src="./js/app.js"></script>
+
+  <script>
+    // Hide loader once app is ready
+    window.addEventListener('load', () => {
+      // Small delay so app has time to render shell
+      setTimeout(() => {
+        const loader = document.getElementById('appLoader');
+        if (loader) loader.classList.add('hidden');
+      }, 800);
+    });
+
+    // Handle iOS safe area
+    document.documentElement.style.setProperty(
+      '--safe-area-inset-bottom',
+      'env(safe-area-inset-bottom, 0px)'
+    );
+  </script>
+
+</body>
+</html>

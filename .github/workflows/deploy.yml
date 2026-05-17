@@ -2,93 +2,73 @@
 # BudgetWise — GitHub Actions CI/CD
 # Auto builds and deploys to GitHub Pages on every push to main
 #
-# SETUP INSTRUCTIONS (do this once):
-# 1. Push your code to GitHub
-# 2. Go to repo Settings → Pages
-# 3. Under "Source" select "GitHub Actions"
-# 4. Go to repo Settings → Secrets → Actions
-# 5. Add these two secrets:
-#    VITE_SUPABASE_URL      → your Supabase project URL
-#    VITE_SUPABASE_ANON_KEY → your Supabase anon key
-#
-# After that, every git push to main auto-deploys in ~60 seconds
-# Live URL: https://yourusername.github.io/budgetwise
+# SETUP (do once):
+# 1. Go to repo Settings → Pages → Source: GitHub Actions
+# 2. Go to repo Settings → Secrets → Actions → Add:
+#    - VITE_SUPABASE_URL
+#    - VITE_SUPABASE_ANON_KEY
+#    - VITE_GROQ_API_KEY
 # ============================================================
 
 name: Deploy BudgetWise to GitHub Pages
 
 on:
-  # Trigger on every push to main branch
   push:
     branches:
       - main
-
-  # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
 
-# Set permissions for GitHub Pages deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Only allow one deployment at a time
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # ── Job 1: Build ─────────────────────────────────────────
   build:
     name: Build Vite App
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Create .env from GitHub Secrets
-      # This injects your Supabase keys at build time
-      - name: Create .env file
+      - name: Create .env from GitHub Secrets
         run: |
           echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" >> .env
           echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env
+          echo "VITE_GROQ_API_KEY=${{ secrets.VITE_GROQ_API_KEY }}" >> .env
           echo "VITE_APP_NAME=BudgetWise" >> .env
           echo "VITE_APP_VERSION=1.0.0" >> .env
 
-      # Step 5: Build the app
       - name: Build with Vite
         run: npm run build
 
-      # Step 6: Setup GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      # Step 7: Upload build artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
 
-  # ── Job 2: Deploy ────────────────────────────────────────
   deploy:
     name: Deploy to GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
     needs: build
 

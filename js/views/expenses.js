@@ -363,24 +363,6 @@ const saveExpense = async () => {
   };
 
   try {
-    if (store.isDemoMode) {
-      const { demoDb } = await import('../demo.js');
-      if (editingId) {
-        demoDb.updateExpense(editingId, expenseData);
-        const idx = store.expenses.findIndex(e => e.id === editingId);
-        if (idx !== -1) store.expenses[idx] = { ...store.expenses[idx], ...expenseData };
-      } else {
-        const newExp = demoDb.addExpense({ ...expenseData,
-          profiles: { name: store.user?.name, avatar_color: store.user?.avatar_color }
-        });
-        store.expenses.unshift(newExp);
-      }
-      closeExpenseModal();
-      showToast(editingId ? 'Expense updated!' : 'Expense added!', 'success');
-      refreshTable();
-      return;
-    }
-
     if (editingId) {
       // Optimistic update
       const backup = store.optimisticUpdate(editingId, expenseData);
@@ -448,8 +430,7 @@ const confirmDelete = (id) => {
   deleteTimer = setTimeout(async () => {
     toast.style.display = 'none';
     try {
-      if (!store.isDemoMode) await deleteExpense(id);
-      else { const { demoDb } = await import('../demo.js'); demoDb.deleteExpense(id); }
+      await deleteExpense(id);
     } catch {
       if (backup) store.rollbackDelete(backup);
       refreshTable();

@@ -237,7 +237,6 @@ const openEditRecurring = (id) => {
   document.getElementById('recCategory').value  = item.category;
   document.getElementById('recNextDue').value   = item.next_due;
   document.getElementById('recIconColor').value = item.icon_color;
-  // Highlight color
   document.querySelectorAll('.icon-color-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.color === item.icon_color);
   });
@@ -258,7 +257,6 @@ const clearRecurringForm = () => {
   document.getElementById('recCycle').value    = 'Monthly';
   document.getElementById('recCategory').value = 'Entertainment';
   document.getElementById('recError').textContent = '';
-  // Default next due = 1st of next month
   const next = new Date();
   next.setMonth(next.getMonth() + 1);
   next.setDate(1);
@@ -277,9 +275,9 @@ const saveRecurring = async () => {
   const btn       = document.getElementById('saveRecurringBtn');
 
   errEl.textContent = '';
-  if (!name)           return (errEl.textContent = 'Please enter a name.');
+  if (!name)              return (errEl.textContent = 'Please enter a name.');
   if (!amount||amount<=0) return (errEl.textContent = 'Please enter a valid amount.');
-  if (!next_due)       return (errEl.textContent = 'Please select a next due date.');
+  if (!next_due)          return (errEl.textContent = 'Please select a next due date.');
 
   btn.disabled = true;
   btn.textContent = 'Saving...';
@@ -288,25 +286,13 @@ const saveRecurring = async () => {
     household_id: store.household?.id, status: 'active' };
 
   try {
-    if (store.isDemoMode) {
-      const { demoDb } = await import('../demo.js');
-      if (editingRecurringId) {
-        demoDb.updateRecurring(editingRecurringId, data);
-        const idx = store.recurring.findIndex(r => r.id === editingRecurringId);
-        if (idx !== -1) store.recurring[idx] = { ...store.recurring[idx], ...data };
-      } else {
-        const newItem = demoDb.addRecurring(data);
-        store.recurring.push(newItem);
-      }
+    if (editingRecurringId) {
+      const updated = await updateRecurring(editingRecurringId, data);
+      const idx = store.recurring.findIndex(r => r.id === editingRecurringId);
+      if (idx !== -1) store.recurring[idx] = updated;
     } else {
-      if (editingRecurringId) {
-        const updated = await updateRecurring(editingRecurringId, data);
-        const idx = store.recurring.findIndex(r => r.id === editingRecurringId);
-        if (idx !== -1) store.recurring[idx] = updated;
-      } else {
-        const saved = await insertRecurring(data);
-        store.recurring.push(saved);
-      }
+      const saved = await insertRecurring(data);
+      store.recurring.push(saved);
     }
     closeRecurringModal();
     showToast(editingRecurringId ? 'Updated!' : 'Added!', 'success');
@@ -326,12 +312,7 @@ const togglePauseRecurring = async (id) => {
   if (!item) return;
   const newStatus = item.status === 'active' ? 'paused' : 'active';
   try {
-    if (store.isDemoMode) {
-      const { demoDb } = await import('../demo.js');
-      demoDb.updateRecurring(id, { status: newStatus });
-    } else {
-      await updateRecurring(id, { status: newStatus });
-    }
+    await updateRecurring(id, { status: newStatus });
     item.status = newStatus;
     showToast(newStatus === 'paused' ? 'Subscription paused' : 'Subscription resumed', 'success');
     renderRecurring();
@@ -345,12 +326,7 @@ const deleteRecurringItem = async (id) => {
   closeAllMenus();
   if (!confirm('Delete this recurring item?')) return;
   try {
-    if (store.isDemoMode) {
-      const { demoDb } = await import('../demo.js');
-      demoDb.deleteRecurring(id);
-    } else {
-      await deleteRecurring(id);
-    }
+    await deleteRecurring(id);
     store.recurring = store.recurring.filter(r => r.id !== id);
     showToast('Deleted!', 'success');
     renderRecurring();
