@@ -26,10 +26,7 @@ import { renderAIChat,
 import { fetchExpenses, fetchBudgets,
          fetchRecurring, fetchMembers,
          subscribeToExpenses }           from './supabase.js';
-import { DEMO_USER, DEMO_HOUSEHOLD,
-         DEMO_MEMBERS, DEMO_EXPENSES,
-         DEMO_BUDGETS, DEMO_RECURRING,
-         demoDb }                        from './demo.js';
+
 
 // ── Bootstrap ─────────────────────────────────────────────────
 const init = async () => {
@@ -37,21 +34,15 @@ const init = async () => {
   const isDark = initDarkMode();
   store.isDarkMode = isDark;
 
-  // 2. Check auth / demo
+  // 2. Check auth
   const profile = await requireAuth();
   if (!profile) return; // redirected to login
 
   // 3. Load data
-  store.isDemoMode = profile.demo === true;
-
-  if (store.isDemoMode) {
-    loadDemoData();
-  } else {
-    store.user      = profile;
-    store.household = profile.households;
-    await loadRealData();
-    setupRealtime();
-  }
+  store.user      = profile;
+  store.household = profile.households;
+  await loadRealData();
+  setupRealtime();
 
   // 4. Render shell
   renderShell();
@@ -77,19 +68,6 @@ const init = async () => {
       window.location.href = './index.html';
     }
   });
-
-  // 8. Show demo banner if demo mode
-  if (store.isDemoMode) showDemoBanner();
-};
-
-// ── Load demo data ────────────────────────────────────────────
-const loadDemoData = () => {
-  store.user      = DEMO_USER;
-  store.household = DEMO_HOUSEHOLD;
-  store.members   = DEMO_MEMBERS;
-  store.expenses  = [...demoDb.expenses];
-  store.budgets   = [...demoDb.budgets];
-  store.recurring = [...demoDb.recurring];
 };
 
 // ── Load real data from Supabase ──────────────────────────────
@@ -121,13 +99,11 @@ const loadRealData = async () => {
 // ── Realtime subscription ─────────────────────────────────────
 const setupRealtime = () => {
   subscribeToExpenses(store.household?.id, async (payload) => {
-    // Refetch expenses on any change from other devices
     const hid      = store.household?.id;
     const expenses = await fetchExpenses(hid);
     store.expenses = expenses;
     store.emit('expenses:changed', expenses);
 
-    // Refresh current view if dashboard or expenses
     if (store.currentTab === 'dashboard') renderDashboard();
     if (store.currentTab === 'expenses')  renderExpenses();
   });
@@ -246,12 +222,12 @@ const renderShell = () => {
     </aside>
 
     <!-- ── MAIN AREA ───────────────────────────────────── -->
-    <div class="main-area">
+    <div class="main-content">
 
       <!-- Topbar -->
       <header class="topbar">
         <div class="topbar-left">
-          <button class="hamburger-btn" id="hamburgerBtn">☰</button>
+          <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
           <div class="topbar-greeting">
             <div class="greeting-emoji-topbar">${greeting.emoji}</div>
             <div>
@@ -277,7 +253,7 @@ const renderShell = () => {
 
       <!-- Mobile topbar -->
       <header class="mobile-topbar">
-        <button class="hamburger-btn" id="hamburgerBtnMobile" onclick="toggleMobileSidebar()">☰</button>
+        <button class="hamburger" id="hamburgerBtnMobile" onclick="toggleMobileSidebar()"><span></span><span></span><span></span></button>
         <div class="mobile-logo">
           <div class="logo-icon-sm">
             <svg viewBox="0 0 20 20" fill="white" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
@@ -290,7 +266,7 @@ const renderShell = () => {
       </header>
 
       <!-- Main content -->
-      <main class="main-content">
+      <main class="page-content">
 
         <!-- View panels -->
         <div class="view-panel active" data-view="dashboard" id="dashboardView"></div>
@@ -304,26 +280,26 @@ const renderShell = () => {
       </main>
 
       <!-- Bottom nav (mobile) -->
-      <nav class="bottom-nav">
-        <button class="bottom-nav-item active" data-tab="dashboard">
+      <nav class="mobile-nav"><div class="mobile-nav-inner">
+        <button class="mobile-nav-item active" data-tab="dashboard">
           <span>🏠</span><span>Dashboard</span>
         </button>
-        <button class="bottom-nav-item" data-tab="expenses">
+        <button class="mobile-nav-item" data-tab="expenses">
           <span>💳</span><span>Expenses</span>
         </button>
-        <button class="bottom-nav-item" data-tab="calendar">
+        <button class="mobile-nav-item" data-tab="calendar">
           <span>📅</span><span>Calendar</span>
         </button>
-        <button class="bottom-nav-item" data-tab="budget">
+        <button class="mobile-nav-item" data-tab="budget">
           <span>🎯</span><span>Budget</span>
         </button>
-        <button class="bottom-nav-item" data-tab="ai-advisor">
+        <button class="mobile-nav-item" data-tab="ai-advisor">
           <span>🤖</span><span>AI</span>
         </button>
-      </nav>
+      </div></nav>
 
       <!-- Floating FAB (mobile) -->
-      <button class="fab-btn" onclick="openAddExpense()" title="Add Expense">+</button>
+      <button class="fab" onclick="openAddExpense()" title="Add Expense">+</button>
 
     </div>
 
@@ -364,13 +340,11 @@ const renderShell = () => {
 
 // ── Wire global events ────────────────────────────────────────
 const wireGlobalEvents = () => {
-  // Add expense button (topbar)
   document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
     navigateTo('expenses');
     setTimeout(() => openAddExpense(), 100);
   });
 
-  // Make openAddExpense global
   window.openAddExpense = openAddExpense;
   window.openSettings   = openSettings;
   window.closeSettings  = closeSettings;
@@ -402,7 +376,6 @@ const saveSettings = () => {
   setGroqKey(key);
   closeSettings();
   showToast(key ? 'Groq API key saved! ✅' : 'API key cleared.', 'success');
-  // Re-render AI chat if currently on that tab
   if (store.currentTab === 'ai-advisor') renderAIChat();
 };
 
@@ -429,7 +402,7 @@ const handleDarkMode = () => {
 
 // ── User menu ─────────────────────────────────────────────────
 const toggleUserMenu = (forceClose = null) => {
-  const menu   = document.getElementById('userDropdown');
+  const menu = document.getElementById('userDropdown');
   if (!menu) return;
   const isOpen = menu.style.display !== 'none';
   menu.style.display = (forceClose === false || forceClose === true)
@@ -450,28 +423,8 @@ const copyInviteCode = () => {
   if (code) copyToClipboard(code);
 };
 
-// ── Demo banner ───────────────────────────────────────────────
-const showDemoBanner = () => {
-  const banner = document.createElement('div');
-  banner.style.cssText = `
-    position:fixed;top:0;left:0;right:0;z-index:9998;
-    background:var(--color-primary);color:white;
-    text-align:center;padding:8px;font-size:0.875rem;font-weight:600;
-    font-family:var(--font-body);
-  `;
-  banner.innerHTML = `
-    🎭 Demo Mode — Data is not saved.
-    <a href="./index.html" style="color:white;text-decoration:underline;margin-left:12px;">
-      Sign up to save your data →
-    </a>`;
-  document.body.prepend(banner);
-  // Push app down
-  const app = document.getElementById('app');
-  if (app) app.style.paddingTop = '36px';
-};
-
 // ── Mobile sidebar ────────────────────────────────────────────
-window.toggleMobileSidebar = () => {
+window.toggleMobileSidebar = async () => {
   const { toggleMobileSidebar } = await import('./router.js');
   toggleMobileSidebar();
 };
