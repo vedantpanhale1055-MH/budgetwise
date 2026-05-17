@@ -26,7 +26,7 @@ import { renderAIChat,
 import { fetchExpenses, fetchBudgets,
          fetchRecurring, fetchMembers,
          subscribeToExpenses }           from './supabase.js';
-
+// Demo mode removed
 
 // ── Bootstrap ─────────────────────────────────────────────────
 const init = async () => {
@@ -34,7 +34,7 @@ const init = async () => {
   const isDark = initDarkMode();
   store.isDarkMode = isDark;
 
-  // 2. Check auth
+  // 2. Check auth / demo
   const profile = await requireAuth();
   if (!profile) return; // redirected to login
 
@@ -68,6 +68,8 @@ const init = async () => {
       window.location.href = './index.html';
     }
   });
+
+
 };
 
 // ── Load real data from Supabase ──────────────────────────────
@@ -99,11 +101,13 @@ const loadRealData = async () => {
 // ── Realtime subscription ─────────────────────────────────────
 const setupRealtime = () => {
   subscribeToExpenses(store.household?.id, async (payload) => {
+    // Refetch expenses on any change from other devices
     const hid      = store.household?.id;
     const expenses = await fetchExpenses(hid);
     store.expenses = expenses;
     store.emit('expenses:changed', expenses);
 
+    // Refresh current view if dashboard or expenses
     if (store.currentTab === 'dashboard') renderDashboard();
     if (store.currentTab === 'expenses')  renderExpenses();
   });
@@ -340,11 +344,13 @@ const renderShell = () => {
 
 // ── Wire global events ────────────────────────────────────────
 const wireGlobalEvents = () => {
+  // Add expense button (topbar)
   document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
     navigateTo('expenses');
     setTimeout(() => openAddExpense(), 100);
   });
 
+  // Make openAddExpense global
   window.openAddExpense = openAddExpense;
   window.openSettings   = openSettings;
   window.closeSettings  = closeSettings;
@@ -376,6 +382,7 @@ const saveSettings = () => {
   setGroqKey(key);
   closeSettings();
   showToast(key ? 'Groq API key saved! ✅' : 'API key cleared.', 'success');
+  // Re-render AI chat if currently on that tab
   if (store.currentTab === 'ai-advisor') renderAIChat();
 };
 
@@ -402,7 +409,7 @@ const handleDarkMode = () => {
 
 // ── User menu ─────────────────────────────────────────────────
 const toggleUserMenu = (forceClose = null) => {
-  const menu = document.getElementById('userDropdown');
+  const menu   = document.getElementById('userDropdown');
   if (!menu) return;
   const isOpen = menu.style.display !== 'none';
   menu.style.display = (forceClose === false || forceClose === true)
