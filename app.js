@@ -304,7 +304,7 @@ const renderShell = () => {
     </div>
 
     <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsOverlay" onclick="handleSettingsOverlay(event)">
+    <div class="modal-backdrop" id="settingsOverlay" onclick="handleSettingsOverlay(event)">
       <div class="modal">
         <div class="modal-header">
           <h3>⚙️ Settings</h3>
@@ -355,20 +355,20 @@ const wireGlobalEvents = () => {
   window.handleDarkMode = handleDarkMode;
   window.toggleUserMenu = toggleUserMenu;
   window.handleSettingsOverlay = (e) => {
-    if (e.target.id === 'settingsOverlay') closeSettings();
+    if (e.target.classList.contains('modal-backdrop')) closeSettings();
   };
 };
 
 // ── Settings ──────────────────────────────────────────────────
 const openSettings = () => {
   toggleUserMenu(false);
-  document.getElementById('settingsOverlay')?.classList.add('active');
+  document.getElementById('settingsOverlay')?.classList.add('open');
   document.getElementById('groqKeyInput').value = getGroqKey();
   document.getElementById('groqKeyStatus').textContent = '';
 };
 
 const closeSettings = () => {
-  document.getElementById('settingsOverlay')?.classList.remove('active');
+  document.getElementById('settingsOverlay')?.classList.remove('open');
 };
 
 const saveSettings = () => {

@@ -209,7 +209,7 @@ const renderPagination = () => {
 
 // ── Expense Modal HTML ────────────────────────────────────────
 const expenseModalHTML = () => `
-  <div class="modal-overlay" id="expenseModalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-backdrop" id="expenseModalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal" id="expenseModal">
       <div class="modal-header">
         <h3 id="modalTitle">Add Expense</h3>
@@ -284,7 +284,7 @@ export const openAddExpense = () => {
   receiptPreview = null;
   document.getElementById('modalTitle').textContent = 'Add Expense';
   clearExpenseForm();
-  document.getElementById('expenseModalOverlay').classList.add('active');
+  document.getElementById('expenseModalOverlay').classList.add('open');
 };
 
 const openEditExpense = (id) => {
@@ -302,11 +302,11 @@ const openEditExpense = (id) => {
   document.querySelectorAll('.category-option').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.cat === exp.category);
   });
-  document.getElementById('expenseModalOverlay').classList.add('active');
+  document.getElementById('expenseModalOverlay').classList.add('open');
 };
 
 const closeExpenseModal = () => {
-  document.getElementById('expenseModalOverlay')?.classList.remove('active');
+  document.getElementById('expenseModalOverlay')?.classList.remove('open');
   editingId = null;
   receiptFile = null;
   clearExpenseForm();

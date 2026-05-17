@@ -155,7 +155,7 @@ const editBudgetModalHTML = () => {
   const month = new Date().toISOString().slice(0, 7);
 
   return `
-  <div class="modal-overlay" id="editBudgetOverlay" onclick="handleBudgetOverlay(event)">
+  <div class="modal-backdrop" id="editBudgetOverlay" onclick="handleBudgetOverlay(event)">
     <div class="modal">
       <div class="modal-header">
         <h3>Edit Category Budgets</h3>
@@ -198,11 +198,11 @@ window.handleBudgetOverlay = (e) => {
 };
 
 const openEditBudgets = () => {
-  document.getElementById('editBudgetOverlay')?.classList.add('active');
+  document.getElementById('editBudgetOverlay')?.classList.add('open');
 };
 
 const closeEditBudgets = () => {
-  document.getElementById('editBudgetOverlay')?.classList.remove('active');
+  document.getElementById('editBudgetOverlay')?.classList.remove('open');
 };
 
 const saveBudgets = async () => {

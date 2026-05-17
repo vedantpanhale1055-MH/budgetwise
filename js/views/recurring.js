@@ -149,7 +149,7 @@ const recurringRow = (r) => {
 
 // ── Modal HTML ────────────────────────────────────────────────
 const recurringModalHTML = () => `
-  <div class="modal-overlay" id="recurringModalOverlay" onclick="handleRecurringOverlay(event)">
+  <div class="modal-backdrop" id="recurringModalOverlay" onclick="handleRecurringOverlay(event)">
     <div class="modal">
       <div class="modal-header">
         <h3 id="recurringModalTitle">Add Recurring</h3>
@@ -222,7 +222,7 @@ const openAddRecurring = () => {
   editingRecurringId = null;
   document.getElementById('recurringModalTitle').textContent = 'Add Recurring';
   clearRecurringForm();
-  document.getElementById('recurringModalOverlay').classList.add('active');
+  document.getElementById('recurringModalOverlay').classList.add('open');
 };
 
 const openEditRecurring = (id) => {
@@ -240,11 +240,11 @@ const openEditRecurring = (id) => {
   document.querySelectorAll('.icon-color-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.color === item.icon_color);
   });
-  document.getElementById('recurringModalOverlay').classList.add('active');
+  document.getElementById('recurringModalOverlay').classList.add('open');
 };
 
 const closeRecurringModal = () => {
-  document.getElementById('recurringModalOverlay')?.classList.remove('active');
+  document.getElementById('recurringModalOverlay')?.classList.remove('open');
   editingRecurringId = null;
   clearRecurringForm();
 };
