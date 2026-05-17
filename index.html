@@ -841,26 +841,27 @@
   let currentUser = null;
 
   // ── Check existing session ───────────────────────────────
-  if (supabase) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      // Check if user already has a household
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('household_id')
-        .eq('id', session.user.id)
-        .single();
+  const initAuth = async () => {
+    if (supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('household_id')
+          .eq('id', session.user.id)
+          .single();
 
-      if (profile?.household_id) {
-        window.location.href = './app.html';
-      } else {
-        // Logged in but no household — show family setup
-        currentUser = session.user;
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('familySetup').classList.add('active');
+        if (profile?.household_id) {
+          window.location.href = './app.html';
+        } else {
+          currentUser = session.user;
+          document.getElementById('authForm').style.display = 'none';
+          document.getElementById('familySetup').classList.add('active');
+        }
       }
     }
-  }
+  };
+  initAuth();
 
   // ── Tab switching ────────────────────────────────────────
   window.switchTab = (tab) => {
