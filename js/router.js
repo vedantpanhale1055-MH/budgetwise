@@ -35,7 +35,7 @@ export const navigateTo = (tab) => {
   });
 
   // Update bottom mobile nav active state
-  document.querySelectorAll('.bottom-nav-item').forEach(el => {
+  document.querySelectorAll('.mobile-nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tab);
   });
 
@@ -86,18 +86,18 @@ const updatePageTitle = (tab) => {
 export const toggleMobileSidebar = () => {
   const sidebar  = document.getElementById('sidebar');
   const overlay  = document.getElementById('sidebarOverlay');
-  const isOpen   = sidebar?.classList.contains('mobile-open');
+  const isOpen   = sidebar?.classList.contains('open');
 
-  sidebar?.classList.toggle('mobile-open', !isOpen);
-  overlay?.classList.toggle('active', !isOpen);
+  sidebar?.classList.toggle('open', !isOpen);
+  overlay?.classList.toggle('visible', !isOpen);
   document.body.style.overflow = isOpen ? '' : 'hidden';
 };
 
 export const closeMobileSidebar = () => {
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
-  sidebar?.classList.remove('mobile-open');
-  overlay?.classList.remove('active');
+  sidebar?.classList.remove('open');
+  overlay?.classList.remove('visible');
   document.body.style.overflow = '';
 };
 
@@ -113,7 +113,7 @@ export const initRouter = () => {
   });
 
   // Wire up bottom mobile nav clicks
-  document.querySelectorAll('.bottom-nav-item[data-tab]').forEach(el => {
+  document.querySelectorAll('.mobile-nav-item[data-tab]').forEach(el => {
     el.addEventListener('click', () => navigateTo(el.dataset.tab));
   });
 
