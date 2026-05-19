@@ -23,27 +23,25 @@ export const renderCalendar = () => {
       <!-- Calendar card -->
       <div class="card calendar-card">
         <div class="calendar-nav">
-          <button class="cal-nav-btn" onclick="calPrev()">‹</button>
           <h3 class="cal-month-title" id="calMonthTitle"></h3>
-          <button class="cal-nav-btn" onclick="calNext()">›</button>
+          <div style="display:flex;gap:var(--space-2);align-items:center;">
+            <button class="btn btn-ghost btn-sm" onclick="calGoToday()">Today</button>
+            <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+            <button class="cal-nav-btn" onclick="calNext()">›</button>
+          </div>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
       </div>
 
-      <!-- Day detail panel -->
-      <div class="card calendar-detail-card" id="calDetailCard" style="display:none;">
-        <div class="calendar-detail-header">
-          <h3 id="calDetailDate"></h3>
-          <span class="cal-detail-total" id="calDetailTotal"></span>
-        </div>
-        <div id="calDetailList"></div>
-      </div>
+      <!-- Day detail panel (shown when a day is clicked) -->
+      <div class="card calendar-detail-card" id="calDetailCard" style="display:none;"></div>
 
     </div>
   `;
 
-  window.calPrev     = calPrev;
-  window.calNext     = calNext;
+  window.calPrev      = calPrev;
+  window.calNext      = calNext;
+  window.calGoToday   = calGoToday;
   window.selectCalDay = selectCalDay;
 
   renderCalGrid();
@@ -112,8 +110,8 @@ const renderCalGrid = () => {
 const selectCalDay = (dateStr) => {
   // Highlight selected
   document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-  const dayNum = parseInt(dateStr.split('-')[2]);
-  const allDays= document.querySelectorAll('.cal-day:not(.empty)');
+  const dayNum  = parseInt(dateStr.split('-')[2]);
+  const allDays = document.querySelectorAll('.cal-day:not(.empty)');
   if (allDays[dayNum - 1]) allDays[dayNum - 1].classList.add('selected');
 
   // Get expenses for this day
@@ -121,40 +119,67 @@ const selectCalDay = (dateStr) => {
   const total   = dayExps.reduce((s, e) => s + Number(e.amount), 0);
 
   const detailCard = document.getElementById('calDetailCard');
-  const detailDate = document.getElementById('calDetailDate');
-  const detailTot  = document.getElementById('calDetailTotal');
-  const detailList = document.getElementById('calDetailList');
+  if (!detailCard) return;
 
   detailCard.style.display = 'block';
-  detailDate.textContent   = formatDate(dateStr, {weekday:'long', day:'numeric', month:'long'});
-  detailTot.textContent    = total > 0 ? formatCurrency(total) : '';
+
+  const formattedDate = formatDate(dateStr, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   if (!dayExps.length) {
-    detailList.innerHTML = `
-      <div style="text-align:center;padding:32px;color:var(--color-text-secondary);">
-        <div style="font-size:2rem;margin-bottom:8px;">📅</div>
-        <p>No expenses on this day</p>
+    detailCard.innerHTML = `
+      <div class="calendar-detail-header">
+        <div>
+          <h3>${formattedDate}</h3>
+          <div class="cal-detail-total-sub">No expenses</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:40px;color:var(--text-secondary);">
+        <div style="font-size:2.5rem;margin-bottom:12px;opacity:0.4;">📅</div>
+        <p>No expenses recorded on this day.</p>
       </div>`;
     return;
   }
 
-  detailList.innerHTML = dayExps
-    .sort((a, b) => Number(b.amount) - Number(a.amount))
-    .map(e => {
-      const cat = getCategoryData(e.category);
-      return `
-      <div class="cal-detail-row">
-        <div class="cal-detail-icon" style="background:${cat.bg};">${cat.emoji}</div>
-        <div class="cal-detail-info">
-          <div class="cal-detail-name">${e.name}</div>
-          <div class="cal-detail-sub">${e.category}</div>
-        </div>
-        <div class="cal-detail-right">
-          ${avatarHtml(e.profiles?.name||'?', e.profiles?.avatar_color, 26)}
+  detailCard.innerHTML = `
+    <div class="calendar-detail-header">
+      <div>
+        <h3>${formattedDate}</h3>
+        <div class="cal-detail-total-sub">${dayExps.length} expense${dayExps.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="cal-detail-total">${formatCurrency(total)}</div>
+        <div class="cal-detail-total-sub">Total Spent</div>
+      </div>
+    </div>
+    <div class="cal-detail-table-header">
+      <span>Description</span>
+      <span>Category</span>
+      <span>Member</span>
+      <span style="text-align:right;">Amount</span>
+    </div>
+    ${dayExps
+      .sort((a, b) => Number(b.amount) - Number(a.amount))
+      .map(e => {
+        const cat = getCategoryData(e.category);
+        return `
+        <div class="cal-detail-row">
+          <div class="cal-detail-info">
+            <div class="cal-detail-icon" style="background:${cat.bg};">${cat.emoji}</div>
+            <div>
+              <div class="cal-detail-name">${e.name}</div>
+            </div>
+          </div>
+          <div>
+            <span class="category-pill ${(e.category||'').toLowerCase()}">${e.category}</span>
+          </div>
+          <div class="cal-detail-member">
+            ${avatarHtml(e.profiles?.name || '?', e.profiles?.avatar_color, 26)}
+            <span>${e.profiles?.name?.split(' ')[0] || '?'}</span>
+          </div>
           <div class="cal-detail-amount">${formatCurrency(e.amount)}</div>
-        </div>
-      </div>`;
-    }).join('');
+        </div>`;
+      }).join('')}
+  `;
 };
 
 // ── Navigation ────────────────────────────────────────────────
@@ -168,6 +193,14 @@ const calPrev = () => {
 const calNext = () => {
   calMonth++;
   if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalGrid();
+  document.getElementById('calDetailCard').style.display = 'none';
+};
+
+const calGoToday = () => {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
   renderCalGrid();
   document.getElementById('calDetailCard').style.display = 'none';
 };

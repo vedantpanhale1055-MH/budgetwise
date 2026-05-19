@@ -245,7 +245,7 @@ const renderShell = () => {
             📅 ${new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric'})} – ${new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'})}
           </div>
           <button class="btn-icon" id="voiceBtn" title="Voice commands">🎤</button>
-          <button class="btn btn-primary" id="addExpenseBtn" onclick="openAddExpense()">
+          <button class="btn btn-primary" id="addExpenseBtn">
             + Add Expense
           </button>
         </div>
@@ -303,46 +303,19 @@ const renderShell = () => {
 
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-backdrop" id="settingsOverlay" onclick="handleSettingsOverlay(event)">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>⚙️ Settings</h3>
-          <button class="modal-close" onclick="closeSettings()">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Groq API Key</label>
-            <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-bottom:8px;">
-              Get your free key at <a href="https://console.groq.com" target="_blank" style="color:var(--color-primary);">console.groq.com</a>
-            </p>
-            <div style="display:flex;gap:8px;">
-              <input class="form-input" id="groqKeyInput" type="password"
-                     placeholder="gsk_..." value="${getGroqKey()}" />
-              <button class="btn btn-outline btn-sm" onclick="testGroqKey()">Test</button>
-            </div>
-            <div id="groqKeyStatus" style="margin-top:6px;font-size:0.8125rem;"></div>
-          </div>
-          <div style="margin-top:16px;padding:12px;background:var(--color-bg-secondary);border-radius:8px;">
-            <p style="font-size:0.8125rem;color:var(--color-text-secondary);">
-              🔒 Your key is stored only in your browser's localStorage — never sent to our servers or committed to GitHub.
-            </p>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-        </div>
-      </div>
-    </div>
   `;
 };
 
 // ── Wire global events ────────────────────────────────────────
 const wireGlobalEvents = () => {
+  // Single clean handler — no inline onclick on the button
   document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
-    navigateTo('expenses');
-    setTimeout(() => openAddExpense(), 100);
+    if (store.currentTab !== 'expenses') {
+      navigateTo('expenses');
+      setTimeout(() => openAddExpense(), 250);
+    } else {
+      openAddExpense();
+    }
   });
 
   window.openAddExpense = openAddExpense;
@@ -354,25 +327,67 @@ const wireGlobalEvents = () => {
   window.copyInviteCode = copyInviteCode;
   window.handleDarkMode = handleDarkMode;
   window.toggleUserMenu = toggleUserMenu;
-  window.handleSettingsOverlay = (e) => {
-    if (e.target.classList.contains('modal-backdrop')) closeSettings();
-  };
 };
 
-// ── Settings ──────────────────────────────────────────────────
+// ── Settings — created on demand, never in the shell ─────────
 const openSettings = () => {
   toggleUserMenu(false);
-  document.getElementById('settingsOverlay')?.classList.add('open');
+  // Remove any stale instance
+  document.getElementById('settingsOverlay')?.remove();
+
+  const el = document.createElement('div');
+  el.className = 'modal-backdrop open';
+  el.id = 'settingsOverlay';
+  el.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="modal-close" id="settingsCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Groq API Key</label>
+          <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-bottom:8px;">
+            Get your free key at <a href="https://console.groq.com" target="_blank" style="color:var(--color-primary);">console.groq.com</a>
+          </p>
+          <div style="display:flex;gap:8px;">
+            <input class="form-input" id="groqKeyInput" type="password"
+                   placeholder="gsk_..." />
+            <button class="btn btn-outline btn-sm" id="testGroqBtn">Test</button>
+          </div>
+          <div id="groqKeyStatus" style="margin-top:6px;font-size:0.8125rem;"></div>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:var(--color-bg-secondary);border-radius:8px;">
+          <p style="font-size:0.8125rem;color:var(--color-text-secondary);">
+            🔒 Your key is stored only in your browser's localStorage — never sent to our servers or committed to GitHub.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="settingsCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="settingsSaveBtn">Save Settings</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(el);
+
+  // Populate current key
   document.getElementById('groqKeyInput').value = getGroqKey();
-  document.getElementById('groqKeyStatus').textContent = '';
+
+  // Wire all buttons with addEventListener — zero inline onclick
+  el.querySelector('#settingsCloseBtn').addEventListener('click', closeSettings);
+  el.querySelector('#settingsCancelBtn').addEventListener('click', closeSettings);
+  el.querySelector('#settingsSaveBtn').addEventListener('click', saveSettings);
+  el.querySelector('#testGroqBtn').addEventListener('click', testGroqKey);
+  el.addEventListener('click', (e) => { if (e.target === el) closeSettings(); });
 };
 
 const closeSettings = () => {
-  document.getElementById('settingsOverlay')?.classList.remove('open');
+  document.getElementById('settingsOverlay')?.remove();
 };
 
 const saveSettings = () => {
-  const key = document.getElementById('groqKeyInput').value.trim();
+  const key = document.getElementById('groqKeyInput')?.value.trim() || '';
   setGroqKey(key);
   closeSettings();
   showToast(key ? 'Groq API key saved! ✅' : 'API key cleared.', 'success');
@@ -380,18 +395,14 @@ const saveSettings = () => {
 };
 
 const testGroqKey = async () => {
-  const key    = document.getElementById('groqKeyInput').value.trim();
+  const key    = document.getElementById('groqKeyInput')?.value.trim() || '';
   const status = document.getElementById('groqKeyStatus');
-  if (!key) { status.textContent = '⚠️ Please enter a key first.'; return; }
-  status.textContent = '⏳ Testing...';
-  status.style.color = 'var(--color-text-secondary)';
+  if (!key) { if (status) status.textContent = '⚠️ Please enter a key first.'; return; }
+  if (status) { status.textContent = '⏳ Testing...'; status.style.color = 'var(--color-text-secondary)'; }
   const valid = await validateGroqKey(key);
-  if (valid) {
-    status.textContent = '✅ Key is valid!';
-    status.style.color = 'var(--color-success)';
-  } else {
-    status.textContent = '❌ Invalid key. Please check and try again.';
-    status.style.color = 'var(--color-danger)';
+  if (status) {
+    status.textContent = valid ? '✅ Key is valid!' : '❌ Invalid key. Please check and try again.';
+    status.style.color = valid ? 'var(--color-success)' : 'var(--color-danger)';
   }
 };
 
