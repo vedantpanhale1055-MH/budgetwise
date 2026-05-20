@@ -372,3 +372,15 @@
   cursor: pointer;
   outline: none;
 }
+
+/* ── Modal backdrop fix: prevent parent overflow/transform clipping ── */
+.view-panel {
+  overflow: visible !important;
+  transform: none !important;
+  contain: none !important;
+}
+
+.page-content {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
