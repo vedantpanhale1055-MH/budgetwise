@@ -169,7 +169,7 @@ git push origin main
 
 4. Deploy the project
 
-**Live URL:** `https://yourusername.github.io/budgetwise`
+**Live URL:** `budgetwise-zys3.vercel.app`
 
 ---
 
@@ -199,8 +199,7 @@ git push origin main
 - *"Integrated Groq Vision (llama-4-scout) for receipt scanning — base64 encoded image → API → auto-fill expense form"*
 - *"Used optimistic UI — expenses appear instantly before DB confirmation, with automatic rollback on failure"*
 - *"Built PDF export using jsPDF — captures Chart.js canvas as images and assembles a formatted monthly report"*
-- *"Set up CI/CD with GitHub Actions — every push auto-builds with Vite and deploys to GitHub Pages"*
-- *"Designed mobile-first layout with hamburger sidebar, bottom nav, and floating action button"*
+*"Deployed production build on Vercel with automatic CI/CD and environment variable management"*- *"Designed mobile-first layout with hamburger sidebar, bottom nav, and floating action button"*
 
 ---
 
@@ -222,5 +221,6 @@ MIT — feel free to use for your own portfolio!
 ---
 
 <div align="center">
-  Built with ❤️ using Supabase + Groq + Vite
+  Built with ❤️ using Supabase + Groq + Vite + Claude 
+  BY VEDANT 
 </div>
