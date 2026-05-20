@@ -23,7 +23,8 @@ import { renderRecurring }                from './views/recurring.js';
 import { renderAIChat,
          getGroqKey, setGroqKey,
          validateGroqKey }               from './ai-chat.js';
-import { fetchExpenses, fetchBudgets,
+import { supabase,
+         fetchExpenses, fetchBudgets,
          fetchRecurring, fetchMembers,
          subscribeToExpenses }           from './supabase.js';
 
@@ -90,8 +91,10 @@ const loadRealData = async () => {
 
 // ── Realtime subscription ─────────────────────────────────────
 const setupRealtime = () => {
-  subscribeToExpenses(store.household?.id, async (payload) => {
-    const hid      = store.household?.id;
+  const hid = store.household?.id;
+
+  // Subscribe to expense changes
+  subscribeToExpenses(hid, async (payload) => {
     const expenses = await fetchExpenses(hid);
     store.expenses = expenses;
     store.emit('expenses:changed', expenses);
@@ -99,6 +102,36 @@ const setupRealtime = () => {
     if (store.currentTab === 'dashboard') renderDashboard();
     if (store.currentTab === 'expenses')  renderExpenses();
   });
+
+  // Subscribe to profile changes (member joins/leaves)
+  if (supabase && hid) {
+    supabase
+      .channel(`members-${hid}`)
+      .on(
+        'postgres_changes',
+        {
+          event:  '*',
+          schema: 'public',
+          table:  'profiles',
+          filter: `household_id=eq.${hid}`,
+        },
+        async () => {
+          // Re-fetch members and update sidebar count
+          store.members = await fetchMembers(hid);
+          updateMemberCount();
+        }
+      )
+      .subscribe();
+  }
+};
+
+// ── Update member count in sidebar without full re-render ─────
+const updateMemberCount = () => {
+  const el = document.querySelector('.family-members');
+  if (el) {
+    const n = store.members.length;
+    el.textContent = `${n} member${n !== 1 ? 's' : ''}`;
+  }
 };
 
 // ── Render app shell ──────────────────────────────────────────
@@ -131,7 +164,7 @@ const renderShell = () => {
         <div class="family-card-icon">🏠</div>
         <div class="family-card-info">
           <div class="family-name">${hh?.name || 'My Family'}</div>
-          <div class="family-members">${store.members.length || 1} member${store.members.length !== 1 ? 's' : ''}</div>
+          <div class="family-members">${store.members.length} member${store.members.length !== 1 ? 's' : ''}</div>
         </div>
       </div>
 
