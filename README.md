@@ -5,8 +5,8 @@
 [![Live Demo](https://img.shields.io/badge/Live-Demo-C85A2A?style=for-the-badge)](https://yourusername.github.io/budgetwise)
 [![Built with Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
 [![Powered by Groq](https://img.shields.io/badge/AI-Groq-F55036?style=for-the-badge)](https://groq.com)
-[![Deployed on GitHub Pages](https://img.shields.io/badge/Hosted-GitHub%20Pages-181717?style=for-the-badge&logo=github)](https://pages.github.com)
-
+[![Powered by Claude](https://img.shields.io/badge/AI-Claude-D97757?style=for-the-badge)](https://claude.ai)
+[![Hosted on Vercel](https://img.shields.io/badge/Hosted-Vercel-000000?style=for-the-badge&logo=vercel)](https://vercel.com)
 ---
 
 ## 📸 Screenshots
@@ -64,8 +64,8 @@
 | Receipt Scan | Groq — llama-4-scout (Vision) |
 | Charts | Chart.js |
 | PDF Export | jsPDF |
-| Hosting | GitHub Pages |
-| CI/CD | GitHub Actions |
+| Hosting | Vercel |
+| CI/CD | Vercel Deployments |
 
 ---
 
@@ -152,7 +152,7 @@ budgetwise/
 
 ## 🌐 Deployment
 
-### GitHub Pages (automatic)
+#### Vercel Deployment
 
 1. Push to GitHub:
 ```bash
@@ -161,13 +161,13 @@ git commit -m "feat: initial BudgetWise deployment"
 git push origin main
 ```
 
-2. Go to repo **Settings** → **Pages** → Source: **GitHub Actions**
+2. Import the repository into Vercel
 
-3. Go to repo **Settings** → **Secrets** → **Actions** → add:
+3. Add environment variables:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
 
-4. Every push to `main` auto-deploys in ~60 seconds.
+4. Deploy the project
 
 **Live URL:** `https://yourusername.github.io/budgetwise`
 
