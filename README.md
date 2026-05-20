@@ -2,7 +2,7 @@
 
 > **AI-powered family expense tracking app** with real-time sync, receipt scanning, and smart financial advice.
 
-[![Live APP](https://img.shields.io/badge/Live-Demo-C85A2A?style=for-the-badge)](budgetwise-zys3.vercel.app)
+[![Live App](https://img.shields.io/badge/Live%20App-Launch-C85A2A?style=for-the-badge)](https://budgetwise-zys3.vercel.app)
 [![Built with Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
 [![Powered by Groq](https://img.shields.io/badge/AI-Groq-F55036?style=for-the-badge)](https://groq.com)
 [![Powered by Claude](https://img.shields.io/badge/AI-Claude-D97757?style=for-the-badge)](https://claude.ai)
