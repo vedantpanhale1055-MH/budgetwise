@@ -953,8 +953,23 @@
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      showToast('Welcome back! Loading your dashboard...', 'success');
-      setTimeout(() => window.location.href = './app.html', 800);
+
+      // Check if user already has a household
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('household_id')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile?.household_id) {
+        showToast('Welcome back! Loading your dashboard...', 'success');
+        setTimeout(() => window.location.href = './app.html', 800);
+      } else {
+        // No household yet — show family setup
+        currentUser = data.user;
+        setLoading(btn, false);
+        showFamilySetup();
+      }
     } catch (err) {
       setLoading(btn, false);
       showError(errEl, 'Invalid email or password. Please try again.');
@@ -1019,12 +1034,29 @@
     setLoading(btn, true);
 
     try {
-      const { data: household, error } = await supabase.from('households')
-        .select('id, name').eq('invite_code', code).single();
-      if (error || !household) throw new Error('Invalid invite code. Please check and try again.');
+      // Ensure we have the current user (could be null if session was restored)
+      if (!currentUser) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Session expired. Please sign in again.');
+        currentUser = user;
+      }
 
-      await supabase.from('profiles').update({ household_id: household.id, role: 'member' })
+      // Use maybeSingle() so a no-match returns null instead of throwing
+      const { data: household, error } = await supabase
+        .from('households')
+        .select('id, name')
+        .eq('invite_code', code)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!household) throw new Error('Invalid invite code. Please check and try again.');
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ household_id: household.id, role: 'member' })
         .eq('id', currentUser.id);
+
+      if (updateError) throw updateError;
 
       showToast(`Joined ${household.name}! Loading dashboard...`, 'success');
       setTimeout(() => window.location.href = './app.html', 1000);
