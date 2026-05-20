@@ -1041,14 +1041,24 @@
         currentUser = user;
       }
 
-      // Use maybeSingle() so a no-match returns null instead of throwing
-      const { data: household, error } = await supabase
+      // Try direct query first; if RLS blocks it, fall back to RPC
+      let household = null;
+      const { data: directData, error: directError } = await supabase
         .from('households')
         .select('id, name')
         .eq('invite_code', code)
         .maybeSingle();
 
-      if (error) throw error;
+      if (directError) {
+        // RLS is likely blocking anonymous access — try via a SECURITY DEFINER RPC
+        const { data: rpcData, error: rpcError } = await supabase
+          .rpc('get_household_by_invite_code', { p_code: code });
+        if (rpcError) throw new Error('Lookup failed: ' + rpcError.message);
+        household = rpcData?.[0] || null;
+      } else {
+        household = directData;
+      }
+
       if (!household) throw new Error('Invalid invite code. Please check and try again.');
 
       const { error: updateError } = await supabase
@@ -1056,7 +1066,7 @@
         .update({ household_id: household.id, role: 'member' })
         .eq('id', currentUser.id);
 
-      if (updateError) throw updateError;
+      if (updateError) throw new Error('Join failed: ' + updateError.message);
 
       showToast(`Joined ${household.name}! Loading dashboard...`, 'success');
       setTimeout(() => window.location.href = './app.html', 1000);
