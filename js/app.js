@@ -26,28 +26,22 @@ import { renderAIChat,
 import { fetchExpenses, fetchBudgets,
          fetchRecurring, fetchMembers,
          subscribeToExpenses }           from './supabase.js';
-// Demo mode removed
 
 // ── Bootstrap ─────────────────────────────────────────────────
 const init = async () => {
-  // 1. Dark mode (instant, no flicker)
   const isDark = initDarkMode();
   store.isDarkMode = isDark;
 
-  // 2. Check auth / demo
   const profile = await requireAuth();
-  if (!profile) return; // redirected to login
+  if (!profile) return;
 
-  // 3. Load data
   store.user      = profile;
   store.household = profile.households;
   await loadRealData();
   setupRealtime();
 
-  // 4. Render shell
   renderShell();
 
-  // 5. Register all views
   registerView('dashboard',  renderDashboard);
   registerView('expenses',   renderExpenses);
   registerView('calendar',   renderCalendar);
@@ -56,20 +50,16 @@ const init = async () => {
   registerView('recurring',  renderRecurring);
   registerView('ai-advisor', renderAIChat);
 
-  // 6. Init systems
   initChartDefaults();
   initRouter();
   initVoice();
   wireGlobalEvents();
 
-  // 7. Auth state listener
   onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {
       window.location.href = './index.html';
     }
   });
-
-
 };
 
 // ── Load real data from Supabase ──────────────────────────────
@@ -101,13 +91,11 @@ const loadRealData = async () => {
 // ── Realtime subscription ─────────────────────────────────────
 const setupRealtime = () => {
   subscribeToExpenses(store.household?.id, async (payload) => {
-    // Refetch expenses on any change from other devices
     const hid      = store.household?.id;
     const expenses = await fetchExpenses(hid);
     store.expenses = expenses;
     store.emit('expenses:changed', expenses);
 
-    // Refresh current view if dashboard or expenses
     if (store.currentTab === 'dashboard') renderDashboard();
     if (store.currentTab === 'expenses')  renderExpenses();
   });
@@ -124,13 +112,9 @@ const renderShell = () => {
   const initials = user?.name?.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase() || 'BW';
 
   app.innerHTML = `
-    <!-- Sidebar overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ── SIDEBAR ────────────────────────────────────── -->
     <aside class="sidebar" id="sidebar">
-
-      <!-- Logo -->
       <div class="sidebar-logo">
         <div class="logo-icon">
           <svg viewBox="0 0 26 26" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -143,7 +127,6 @@ const renderShell = () => {
         </div>
       </div>
 
-      <!-- Family card -->
       <div class="family-card">
         <div class="family-card-icon">🏠</div>
         <div class="family-card-info">
@@ -152,7 +135,6 @@ const renderShell = () => {
         </div>
       </div>
 
-      <!-- Invite code -->
       <div class="invite-code-wrap">
         <span class="invite-label">Invite code</span>
         <div class="invite-code-box" onclick="copyInviteCode()">
@@ -161,7 +143,6 @@ const renderShell = () => {
         </div>
       </div>
 
-      <!-- Nav items -->
       <nav class="sidebar-nav">
         <button class="nav-item" data-tab="dashboard">
           <span class="nav-icon">🏠</span>
@@ -194,9 +175,7 @@ const renderShell = () => {
         </button>
       </nav>
 
-      <!-- Sidebar footer -->
       <div class="sidebar-footer">
-        <!-- User card -->
         <div class="user-card">
           <div class="user-avatar" style="background:${user?.avatar_color||'#C85A2A'};">
             ${initials}
@@ -208,13 +187,11 @@ const renderShell = () => {
           <button class="user-menu-btn" onclick="toggleUserMenu()" title="Options">▾</button>
         </div>
 
-        <!-- User dropdown -->
         <div class="user-dropdown" id="userDropdown" style="display:none;">
           <button class="user-dropdown-item" onclick="openSettings()">⚙️ Settings</button>
           <button class="user-dropdown-item danger" onclick="handleSignOut()">🚪 Sign Out</button>
         </div>
 
-        <!-- Dark mode toggle -->
         <div class="dark-mode-row">
           <span class="dark-mode-label">🌙 Dark mode</span>
           <label class="toggle-switch">
@@ -225,10 +202,7 @@ const renderShell = () => {
       </div>
     </aside>
 
-    <!-- ── MAIN AREA ───────────────────────────────────── -->
     <div class="main-area">
-
-      <!-- Topbar -->
       <header class="topbar">
         <div class="topbar-left">
           <button class="hamburger-btn" id="hamburgerBtn">☰</button>
@@ -249,13 +223,12 @@ const renderShell = () => {
             📅 ${new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric'})} – ${new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'})}
           </div>
           <button class="btn-icon" id="voiceBtn" title="Voice commands">🎤</button>
-          <button class="btn btn-primary" id="addExpenseBtn" onclick="openAddExpense()">
+          <button class="btn btn-primary" id="addExpenseBtn">
             + Add Expense
           </button>
         </div>
       </header>
 
-      <!-- Mobile topbar -->
       <header class="mobile-topbar">
         <button class="hamburger-btn" id="hamburgerBtnMobile" onclick="toggleMobileSidebar()">☰</button>
         <div class="mobile-logo">
@@ -266,24 +239,19 @@ const renderShell = () => {
           </div>
           <span>BudgetWise</span>
         </div>
-        <button class="btn-icon" onclick="openAddExpense()">➕</button>
+        <button class="btn-icon" id="mobileAddBtn">➕</button>
       </header>
 
-      <!-- Main content -->
       <main class="main-content">
-
-        <!-- View panels -->
         <div class="view-panel active" data-view="dashboard" id="dashboardView"></div>
-        <div class="view-panel" data-view="expenses"  id="expensesView"></div>
-        <div class="view-panel" data-view="calendar"  id="calendarView"></div>
-        <div class="view-panel" data-view="analytics" id="analyticsView"></div>
-        <div class="view-panel" data-view="budget"    id="budgetView"></div>
-        <div class="view-panel" data-view="recurring" id="recurringView"></div>
-        <div class="view-panel" data-view="ai-advisor"id="aiChatView"></div>
-
+        <div class="view-panel" data-view="expenses"   id="expensesView"></div>
+        <div class="view-panel" data-view="calendar"   id="calendarView"></div>
+        <div class="view-panel" data-view="analytics"  id="analyticsView"></div>
+        <div class="view-panel" data-view="budget"     id="budgetView"></div>
+        <div class="view-panel" data-view="recurring"  id="recurringView"></div>
+        <div class="view-panel" data-view="ai-advisor" id="aiChatView"></div>
       </main>
 
-      <!-- Bottom nav (mobile) -->
       <nav class="bottom-nav">
         <button class="bottom-nav-item active" data-tab="dashboard">
           <span>🏠</span><span>Dashboard</span>
@@ -302,55 +270,27 @@ const renderShell = () => {
         </button>
       </nav>
 
-      <!-- Floating FAB (mobile) -->
-      <button class="fab-btn" onclick="openAddExpense()" title="Add Expense">+</button>
-
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsOverlay" onclick="handleSettingsOverlay(event)">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>⚙️ Settings</h3>
-          <button class="modal-close" onclick="closeSettings()">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Groq API Key</label>
-            <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-bottom:8px;">
-              Get your free key at <a href="https://console.groq.com" target="_blank" style="color:var(--color-primary);">console.groq.com</a>
-            </p>
-            <div style="display:flex;gap:8px;">
-              <input class="form-input" id="groqKeyInput" type="password"
-                     placeholder="gsk_..." value="${getGroqKey()}" />
-              <button class="btn btn-outline btn-sm" onclick="testGroqKey()">Test</button>
-            </div>
-            <div id="groqKeyStatus" style="margin-top:6px;font-size:0.8125rem;"></div>
-          </div>
-          <div style="margin-top:16px;padding:12px;background:var(--color-bg-secondary);border-radius:8px;">
-            <p style="font-size:0.8125rem;color:var(--color-text-secondary);">
-              🔒 Your key is stored only in your browser's localStorage — never sent to our servers or committed to GitHub.
-            </p>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-        </div>
-      </div>
+      <button class="fab-btn" id="fabBtn" title="Add Expense">+</button>
     </div>
   `;
 };
 
 // ── Wire global events ────────────────────────────────────────
 const wireGlobalEvents = () => {
-  // Add expense button (topbar)
-  document.getElementById('addExpenseBtn')?.addEventListener('click', () => {
-    navigateTo('expenses');
-    setTimeout(() => openAddExpense(), 100);
-  });
+  // Single handler for all Add Expense buttons — no inline onclick anywhere
+  const handleAddExpense = () => {
+    if (store.currentTab !== 'expenses') {
+      navigateTo('expenses');
+      setTimeout(() => openAddExpense(), 250);
+    } else {
+      openAddExpense();
+    }
+  };
 
-  // Make openAddExpense global
+  document.getElementById('addExpenseBtn')?.addEventListener('click', handleAddExpense);
+  document.getElementById('mobileAddBtn')?.addEventListener('click', handleAddExpense);
+  document.getElementById('fabBtn')?.addEventListener('click', handleAddExpense);
+
   window.openAddExpense = openAddExpense;
   window.openSettings   = openSettings;
   window.closeSettings  = closeSettings;
@@ -360,45 +300,77 @@ const wireGlobalEvents = () => {
   window.copyInviteCode = copyInviteCode;
   window.handleDarkMode = handleDarkMode;
   window.toggleUserMenu = toggleUserMenu;
-  window.handleSettingsOverlay = (e) => {
-    if (e.target.id === 'settingsOverlay') closeSettings();
-  };
 };
 
-// ── Settings ──────────────────────────────────────────────────
+// ── Settings — created on demand, never pre-rendered ──────────
 const openSettings = () => {
   toggleUserMenu(false);
-  document.getElementById('settingsOverlay')?.classList.add('active');
-  document.getElementById('groqKeyInput').value = getGroqKey();
-  document.getElementById('groqKeyStatus').textContent = '';
+  document.getElementById('settingsOverlay')?.remove();
+
+  const el = document.createElement('div');
+  el.className = 'modal-backdrop open';
+  el.id = 'settingsOverlay';
+  el.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⚙️ Settings</h3>
+        <button class="modal-close" id="settingsCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Groq API Key</label>
+          <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-bottom:8px;">
+            Get your free key at <a href="https://console.groq.com" target="_blank" style="color:var(--color-primary);">console.groq.com</a>
+          </p>
+          <div style="display:flex;gap:8px;">
+            <input class="form-input" id="groqKeyInput" type="password" placeholder="gsk_..." />
+            <button class="btn btn-outline btn-sm" id="testGroqBtn">Test</button>
+          </div>
+          <div id="groqKeyStatus" style="margin-top:6px;font-size:0.8125rem;"></div>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:var(--color-bg-secondary);border-radius:8px;">
+          <p style="font-size:0.8125rem;color:var(--color-text-secondary);">
+            🔒 Your key is stored only in your browser's localStorage — never sent to our servers or committed to GitHub.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="settingsCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="settingsSaveBtn">Save Settings</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(el);
+
+  el.querySelector('#groqKeyInput').value = getGroqKey();
+  el.querySelector('#settingsCloseBtn').addEventListener('click', closeSettings);
+  el.querySelector('#settingsCancelBtn').addEventListener('click', closeSettings);
+  el.querySelector('#settingsSaveBtn').addEventListener('click', saveSettings);
+  el.querySelector('#testGroqBtn').addEventListener('click', testGroqKey);
+  el.addEventListener('click', (e) => { if (e.target === el) closeSettings(); });
 };
 
 const closeSettings = () => {
-  document.getElementById('settingsOverlay')?.classList.remove('active');
+  document.getElementById('settingsOverlay')?.remove();
 };
 
 const saveSettings = () => {
-  const key = document.getElementById('groqKeyInput').value.trim();
+  const key = document.getElementById('groqKeyInput')?.value.trim() || '';
   setGroqKey(key);
   closeSettings();
   showToast(key ? 'Groq API key saved! ✅' : 'API key cleared.', 'success');
-  // Re-render AI chat if currently on that tab
   if (store.currentTab === 'ai-advisor') renderAIChat();
 };
 
 const testGroqKey = async () => {
-  const key    = document.getElementById('groqKeyInput').value.trim();
+  const key    = document.getElementById('groqKeyInput')?.value.trim() || '';
   const status = document.getElementById('groqKeyStatus');
-  if (!key) { status.textContent = '⚠️ Please enter a key first.'; return; }
-  status.textContent = '⏳ Testing...';
-  status.style.color = 'var(--color-text-secondary)';
+  if (!key) { if (status) status.textContent = '⚠️ Please enter a key first.'; return; }
+  if (status) { status.textContent = '⏳ Testing...'; status.style.color = 'var(--color-text-secondary)'; }
   const valid = await validateGroqKey(key);
-  if (valid) {
-    status.textContent = '✅ Key is valid!';
-    status.style.color = 'var(--color-success)';
-  } else {
-    status.textContent = '❌ Invalid key. Please check and try again.';
-    status.style.color = 'var(--color-danger)';
+  if (status) {
+    status.textContent = valid ? '✅ Key is valid!' : '❌ Invalid key. Please check and try again.';
+    status.style.color = valid ? 'var(--color-success)' : 'var(--color-danger)';
   }
 };
 
@@ -409,7 +381,7 @@ const handleDarkMode = () => {
 
 // ── User menu ─────────────────────────────────────────────────
 const toggleUserMenu = (forceClose = null) => {
-  const menu   = document.getElementById('userDropdown');
+  const menu = document.getElementById('userDropdown');
   if (!menu) return;
   const isOpen = menu.style.display !== 'none';
   menu.style.display = (forceClose === false || forceClose === true)
