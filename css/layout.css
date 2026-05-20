@@ -376,6 +376,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  overflow: visible;
 }
 
 .topbar-greeting { display: flex; align-items: center; gap: var(--space-2); }
@@ -387,8 +388,9 @@
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: unset;
+  min-width: 0;
 }
 
 .topbar-sub {
@@ -731,6 +733,8 @@
 .topbar-title {
   font-size: var(--font-size-base);
   font-weight: 700;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 /* ── Add Expense button ── */
@@ -797,4 +801,34 @@
   .page-content {
     padding: var(--space-4) var(--space-4) calc(var(--mobile-nav-height) + var(--space-4));
   }
+}
+/* ── Topbar greeting fix — prevent clipping ── */
+.topbar-greeting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.topbar-greeting-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar-title {
+  white-space: nowrap;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* ── Blank space fix — ensure view panels fill height ── */
+.view-panel.active {
+  display: block;
+  min-height: calc(100vh - var(--topbar-height));
+}
+
+.page-content {
+  min-height: calc(100vh - var(--topbar-height));
 }
