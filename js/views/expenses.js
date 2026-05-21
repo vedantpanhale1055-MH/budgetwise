@@ -101,20 +101,21 @@ export const renderExpenses = () => {
   `;
 
   // Wire global handlers
-  window.handleSearch    = debounce(handleSearch, 300);
-  window.handleFilter    = handleFilter;
-  window.clearFilters    = clearFilters;
-  window.changePage      = changePage;
-  window.openAddExpense  = openAddExpense;
-  window.openEditExpense = openEditExpense;
-  window.confirmDelete   = confirmDelete;
-  window.undoDelete      = undoDelete;
-  window.closeModal      = closeExpenseModal;
-  window.saveExpense     = saveExpense;
-  window.handleExportCSV = () => exportCSV();
-  window.handleExportPDF = () => exportPDF();
-  window.scanReceipt     = handleScanReceipt;
-  window.removeReceipt   = removeReceipt;
+  window.handleSearch      = debounce(handleSearch, 300);
+  window.handleFilter      = handleFilter;
+  window.clearFilters      = clearFilters;
+  window.changePage        = changePage;
+  window.openAddExpense    = openAddExpense;
+  window.openEditExpense   = openEditExpense;
+  window.confirmDelete     = confirmDelete;
+  window.undoDelete        = undoDelete;
+  window.closeModal        = closeExpenseModal;
+  window.closeExpenseModal = closeExpenseModal;
+  window.saveExpense       = saveExpense;
+  window.handleExportCSV   = () => exportCSV();
+  window.handleExportPDF   = () => exportPDF();
+  window.scanReceipt       = handleScanReceipt;
+  window.removeReceipt     = removeReceipt;
 };
 
 // ── Table HTML ────────────────────────────────────────────────
@@ -213,7 +214,7 @@ const expenseModalHTML = () => `
     <div class="modal" id="expenseModal">
       <div class="modal-header">
         <h3 id="modalTitle">Add Expense</h3>
-        <button class="modal-close" onclick="closeExpenseModal()">✕</button>
+        <button class="modal-close" id="modalCloseBtn" onclick="window.closeExpenseModal()">✕</button>
       </div>
       <div class="modal-body">
 
@@ -267,7 +268,7 @@ const expenseModalHTML = () => `
         <div class="form-error" id="expenseFormError"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeExpenseModal()">Cancel</button>
+        <button class="btn btn-ghost" onclick="window.closeExpenseModal()">Cancel</button>
         <button class="btn btn-primary" id="saveExpenseBtn" onclick="saveExpense()">
           <span class="btn-text">Save Expense</span>
           <span class="btn-spinner" style="display:none;">⏳</span>
@@ -315,6 +316,8 @@ const closeExpenseModal = () => {
 window.handleOverlayClick = (e) => {
   if (e.target.id === 'expenseModalOverlay') closeExpenseModal();
 };
+
+window.closeExpenseModal = closeExpenseModal;
 
 window.selectCategory = (cat) => {
   document.getElementById('expCategory').value = cat;
