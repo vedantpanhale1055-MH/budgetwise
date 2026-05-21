@@ -97,6 +97,11 @@
   align-items: start;
 }
 
+/* Chart card must not grow beyond its content */
+.dashboard-chart-card {
+  height: auto !important;
+}
+
 .dashboard-chart-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -374,6 +379,7 @@
   grid-template-columns: 1fr 360px;
   gap: var(--space-4);
   margin-bottom: var(--space-4);
+  align-items: start;
 }
 
 .dashboard-chart-card {

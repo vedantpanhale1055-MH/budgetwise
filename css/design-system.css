@@ -348,3 +348,4 @@ ul, ol { list-style: none; }
 .btn-link   { font-size: var(--font-size-xs); color: var(--color-primary); font-weight: 600; cursor: pointer; background: none; border: none; }
 .btn-link:hover { text-decoration: underline; }
 .chart-wrap { padding: var(--space-4); position: relative; }
+

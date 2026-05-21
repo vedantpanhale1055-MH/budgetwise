@@ -352,7 +352,7 @@
 /* ════════════════════════════════════════════════════════════
    MAIN AREA
    ════════════════════════════════════════════════════════════ */
-.main-content,
+/* main-area = the outer wrapper that shifts right of sidebar */
 .main-area {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -361,6 +361,15 @@
   min-height: 100vh;
   min-width: 0;
   width: calc(100% - var(--sidebar-width));
+}
+
+/* main-content = nested inside main-area (no extra margin) */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
 }
 
 /* ── Topbar ── */
@@ -576,6 +585,10 @@
   display: block;
   animation: fadeIn 0.2s ease;
   width: 100%;
+  padding: var(--space-6);
+  box-sizing: border-box;
+  background: var(--bg-app);
+  min-height: calc(100vh - var(--topbar-height));
 }
 
 /* ── Mobile bottom nav — DESKTOP: always hidden ── */
@@ -701,5 +714,10 @@
 
   .page-content {
     padding: var(--space-4) var(--space-4) calc(var(--mobile-nav-height) + var(--space-4));
+  }
+
+  .view-panel.active {
+    padding: var(--space-4) var(--space-4) calc(var(--mobile-nav-height) + var(--space-4));
+    min-height: calc(100vh - var(--topbar-height-mobile));
   }
 }
