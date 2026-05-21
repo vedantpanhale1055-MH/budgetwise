@@ -160,12 +160,26 @@ const renderShell = () => {
         </div>
       </div>
 
-      <div class="family-card">
+      <div class="family-card" onclick="toggleFamilyMembers()" id="familyCard" title="Click to see members">
         <div class="family-card-icon">🏠</div>
         <div class="family-card-info">
           <div class="family-name">${hh?.name || 'My Family'}</div>
-          <div class="family-members">${store.members.length} member${store.members.length !== 1 ? 's' : ''}</div>
+          <div class="family-members" id="familyMemberCount">${store.members.length} member${store.members.length !== 1 ? 's' : ''}</div>
         </div>
+        <div class="family-card-chevron" id="familyChevron">▾</div>
+      </div>
+      <div class="family-members-panel" id="familyMembersPanel" style="display:none;">
+        ${store.members.map(m => `
+          <div class="family-member-row">
+            <div class="family-member-avatar" style="background:${m.avatar_color || '#C85A2A'};">
+              ${(m.name || '?').charAt(0).toUpperCase()}
+            </div>
+            <div class="family-member-info">
+              <div class="family-member-name">${m.name || 'Unknown'}</div>
+              <div class="family-member-role">${m.role === 'admin' ? '👑 Admin' : '👤 Member'}</div>
+            </div>
+          </div>
+        `).join('')}
       </div>
 
       <div class="invite-code-wrap">
@@ -331,6 +345,7 @@ const wireGlobalEvents = () => {
   window.testGroqKey    = testGroqKey;
   window.handleSignOut  = handleSignOut;
   window.copyInviteCode = copyInviteCode;
+  window.toggleFamilyMembers = toggleFamilyMembers;
   window.handleDarkMode = handleDarkMode;
   window.toggleUserMenu = toggleUserMenu;
 };
@@ -433,6 +448,18 @@ document.addEventListener('click', (e) => {
 const copyInviteCode = () => {
   const code = store.household?.invite_code;
   if (code) copyToClipboard(code);
+};
+
+// ── Toggle family members panel ────────────────────────────────
+const toggleFamilyMembers = () => {
+  const panel   = document.getElementById('familyMembersPanel');
+  const chevron = document.getElementById('familyChevron');
+  const card    = document.getElementById('familyCard');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  if (card)    card.classList.toggle('active', !isOpen);
 };
 
 // ── Mobile sidebar ────────────────────────────────────────────
