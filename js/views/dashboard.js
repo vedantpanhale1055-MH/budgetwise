@@ -92,7 +92,7 @@ export const renderDashboard = () => {
     <!-- Charts row -->
     <div class="dashboard-charts-row">
 
-      <!-- Daily spending chart -->
+      <!-- Daily spending chart + recent expenses mini -->
       <div class="card dashboard-chart-card">
         <div class="card-header">
           <div>
@@ -105,6 +105,25 @@ export const renderDashboard = () => {
         </div>
         <div class="chart-wrap" style="height:220px;">
           <canvas id="dailyChart"></canvas>
+        </div>
+        <!-- Recent expenses inline below chart -->
+        <div class="chart-recent-divider">
+          <span class="chart-recent-title">Recent Expenses</span>
+          <button class="btn-link" onclick="navigateTo('expenses')">View All →</button>
+        </div>
+        <div class="chart-recent-list">
+          ${recent.length > 0 ? recent.slice(0,4).map(e => {
+            const cat = getCategoryData(e.category);
+            return `
+            <div class="chart-recent-row">
+              <div class="chart-recent-icon" style="background:${cat.bg};">${cat.emoji}</div>
+              <div class="chart-recent-info">
+                <div class="chart-recent-name">${e.name}</div>
+                <div class="chart-recent-date">${formatDate(e.date,{day:'numeric',month:'short'})}</div>
+              </div>
+              <div class="chart-recent-amount">₹${Number(e.amount).toLocaleString('en-IN',{minimumFractionDigits:0})}</div>
+            </div>`;
+          }).join('') : `<div class="chart-recent-empty">No expenses yet this month</div>`}
         </div>
       </div>
 
@@ -144,30 +163,7 @@ export const renderDashboard = () => {
       </div>
     </div>
 
-    <!-- Recent expenses -->
-    <div class="card recent-card">
-      <div class="card-header">
-        <h3 class="card-title">Recent Expenses</h3>
-        <button class="btn-link" onclick="navigateTo('expenses')">View All</button>
-      </div>
-      ${recent.length > 0 ? `
-      <div class="recent-table">
-        <div class="recent-table-header">
-          <span>Date</span>
-          <span>Description</span>
-          <span>Category</span>
-          <span>Member</span>
-          <span class="text-right">Amount</span>
-        </div>
-        ${recent.map(e => recentRow(e)).join('')}
-      </div>
-      ` : `
-      <div class="empty-state" style="padding:40px;text-align:center;">
-        <div style="font-size:2.5rem;margin-bottom:12px;">💸</div>
-        <p style="color:var(--color-text-secondary);">No expenses this month. Add your first one!</p>
-      </div>
-      `}
-    </div>
+
   `;
 
   // Wire global handlers
